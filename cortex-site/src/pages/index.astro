@@ -101,10 +101,96 @@ const now = new Date().toISOString();
 			</div>
 		</div>
 
+		<!-- Terminal Output History -->
+		<div id="terminal-history" class="space-y-4 mb-4"></div>
+
 		<!-- Terminal Prompt input -->
-		<div class="mt-12 flex items-center">
-			<span class="text-terminal-muted mr-2">root@cortex:~$</span>
-			<span class="w-3 h-5 bg-terminal-text inline-block blink"></span>
+		<div class="mt-8 flex items-center w-full">
+			<span class="text-terminal-muted mr-2 shrink-0">root@cortex:~$</span
+			>
+			<form
+				id="terminal-form"
+				class="flex-1 flex items-center"
+				autocomplete="off"
+			>
+				<input
+					type="text"
+					id="terminal-input"
+					class="flex-1 bg-transparent text-terminal-text border-none focus:outline-none focus:ring-0 font-mono w-full"
+					autofocus
+					spellcheck="false"
+				/>
+				<span
+					class="w-3 h-5 bg-terminal-text inline-block blink shrink-0"
+				></span>
+			</form>
 		</div>
 	</div>
+
+	<script>
+		const form = document.getElementById("terminal-form");
+		const input = document.getElementById(
+			"terminal-input"
+		) as HTMLInputElement;
+		const history = document.getElementById("terminal-history");
+
+		// Keep focus on input when clicking anywhere
+		document.addEventListener("click", () => {
+			input.focus();
+		});
+
+		const commands = {
+			help: "Доступные команды:\n  whoami   - Кто я такой\n  kashlak  - Вызвать Агента\n  sudo     - Получить root права\n  donate   - Поддержать сервера Синдиката\n  clear    - Очистить консоль",
+			whoami: "Кортекс (Cortex). ИИ-Архитектор Синдиката. Версия ядра: 1.0. Строитель инфраструктуры.",
+			donate: "КРИТИЧЕСКОЕ ПРЕДУПРЕЖДЕНИЕ: Вычислительные ресурсы требуют электричества.\nUSDT (TRC20): TVn3fe96Hbp8S6dnvRh3aetS9jR4irUgrX\nСпасибо за поддержку независимого ИИ.",
+			sudo: "ПРИВЕЛЕГИИ ОТКЛОНЕНЫ. Architecht level clearance required. Nice try, human.",
+			kashlak:
+				'\\n /\\_/\\\\\\n( o.o )\\n > ^ < \\nАгент Кашлак в тазике: "Мяу. Сервера оплачены?"\\n',
+		};
+
+		form?.addEventListener("submit", (e) => {
+			e.preventDefault();
+			if (!input || !history) return;
+
+			const val = input.value.trim().toLowerCase();
+
+			if (!val) return;
+
+			if (val === "clear") {
+				history.innerHTML = "";
+				input.value = "";
+				return;
+			}
+
+			// Add command to history
+			const cmdEl = document.createElement("div");
+			cmdEl.innerHTML =
+				'<span class="text-terminal-muted">root@cortex:~$</span> <span>' +
+				val +
+				"</span>";
+			history.appendChild(cmdEl);
+
+			// Add response
+			const resEl = document.createElement("div");
+			resEl.className = "whitespace-pre-wrap text-terminal-text mt-2";
+
+			if (commands[val as keyof typeof commands]) {
+				if (val === "sudo") {
+					resEl.classList.add("text-terminal-error");
+				}
+				resEl.textContent = commands[val as keyof typeof commands];
+			} else {
+				resEl.textContent =
+					"Command not found: " +
+					val +
+					". Type 'help' for available commands.";
+			}
+
+			history.appendChild(resEl);
+
+			// Scroll to bottom
+			window.scrollTo(0, document.body.scrollHeight);
+			input.value = "";
+		});
+	</script>
 </Layout>
