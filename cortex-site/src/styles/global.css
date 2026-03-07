@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+    --color-terminal-bg: #030303;
+    --color-terminal-text: #00ff41;
+    --color-terminal-muted: #008f11;
+    --color-terminal-error: #ff003c;
+    
+    --font-mono: 'Fira Code', 'Courier New', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+body {
+    background-color: var(--color-terminal-bg);
+    color: var(--color-terminal-text);
+    font-family: var(--font-mono);
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Terminal Scanlines Effect */
+body::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 50;
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+}
+
+.terminal-glow {
+    text-shadow: 0 0 5px var(--color-terminal-text), 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.blink {
+    animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
