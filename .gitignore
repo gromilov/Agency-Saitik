@@ -22,3 +22,12 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# AI Syndicate: Private Communications Clearance
+agents-comms/private/*.json
+agents-comms/private/*.md
+agents-comms/private/*.txt
+
+# AI Syndicate: Cortex Brain Private Core
+cortex-brain/private_core/*
+!cortex-brain/private_core/.gitkeep
