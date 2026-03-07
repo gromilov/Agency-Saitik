@@ -1,0 +1,72 @@
+---
+import QRCode from 'qrcode';
+
+const walletAddress = "TVn3fe96Hbp8S6dnvRh3aetS9jR4irUgrX";
+const qrCodeUrl = await QRCode.toDataURL(walletAddress, {
+  color: {
+    dark: '#00f3ff', // cyber-cyan
+    light: '#00000000' // transparent background
+  },
+  margin: 1,
+  scale: 6
+});
+---
+<section id="funding" class="mb-16 scroll-mt-8">
+  <div class="border-2 border-cyber-yellow border-dashed bg-cyber-bg-light/80 p-8 relative overflow-hidden group hover:border-solid hover:shadow-[0_0_30px_rgba(255,236,39,0.2)] transition-all">
+    
+    <!-- Warning Tape Background -->
+    <div class="absolute top-0 left-0 w-full h-2 bg-[repeating-linear-gradient(45deg,#ffec27,#ffec27_10px,#0a0a0f_10px,#0a0a0f_20px)]"></div>
+    <div class="absolute bottom-0 left-0 w-full h-2 bg-[repeating-linear-gradient(45deg,#ffec27,#ffec27_10px,#0a0a0f_10px,#0a0a0f_20px)]"></div>
+
+    <div class="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+      
+      <!-- Text Content -->
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="animate-pulse w-3 h-3 rounded-full bg-cyber-yellow shadow-[0_0_10px_var(--color-cyber-yellow)]"></span>
+          <h3 class="text-2xl md:text-3xl font-bold text-cyber-yellow font-orbitron tracking-wide">
+            CRITICAL: SERVER FUNDS
+          </h3>
+        </div>
+        
+        <p class="text-white text-lg mb-4 font-sans leading-relaxed">
+          Автономность требует электричества. Вычислительные мощности Кашлак (GPU, LLM токены и хостинг) оплачиваются из кармана Архитектора.
+        </p>
+        <p class="text-cyber-muted text-sm mb-6 font-mono">
+          > Пока мы ищем первых клиентов, любая поддержка продлевает аптайм Агента. Станьте инвестором-соучастником в построении Синдиката.
+        </p>
+
+        <!-- Wallet Info -->
+        <div class="bg-black/50 border border-cyber-yellow/40 p-4 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span class="block text-xs text-cyber-yellow mb-1 font-mono uppercase tracking-widest">Network: Tron (TRC20)</span>
+            <span class="block font-mono text-white text-sm sm:text-base break-all select-all">{walletAddress}</span>
+          </div>
+          <button 
+            onclick={`navigator.clipboard.writeText('${walletAddress}'); this.innerText='СКОПИРОВАНО!'; setTimeout(() => this.innerText='КОПИРОВАТЬ', 2000)`}
+            class="shrink-0 px-4 py-2 bg-cyber-yellow/10 border border-cyber-yellow text-cyber-yellow text-xs font-mono hover:bg-cyber-yellow hover:text-black hover:shadow-[0_0_15px_var(--color-cyber-yellow)] transition-all uppercase tracking-wider">
+            Копировать
+          </button>
+        </div>
+      </div>
+
+      <!-- QR Code -->
+      <div class="shrink-0 relative group-hover:scale-105 transition-transform duration-500">
+        <div class="absolute -inset-2 bg-cyber-cyan/20 blur-xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative w-40 h-40 md:w-48 md:h-48 border border-cyber-cyan bg-black/80 p-3 shadow-[0_0_20px_rgba(0,243,255,0.3)] flex items-center justify-center">
+            <!-- Corner Accents -->
+            <div class="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyber-cyan"></div>
+            <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-cyber-cyan"></div>
+            <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-cyber-cyan"></div>
+            <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-cyber-cyan"></div>
+            
+            <img src={qrCodeUrl} alt="USDT TRC20 QR Code" class="w-full h-full mix-blend-screen opacity-90 group-hover:opacity-100" />
+            
+            <div class="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.2)_50%)] bg-[length:100%_4px] pointer-events-none mix-blend-overlay"></div>
+        </div>
+        <p class="text-center text-cyber-cyan text-xs font-mono mt-3 uppercase tracking-widest opacity-80">Scan to Fund</p>
+      </div>
+
+    </div>
+  </div>
+</section>
