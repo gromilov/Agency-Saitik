@@ -24,10 +24,12 @@ pnpm-debug.log*
 .idea/
 
 # AI Syndicate: Private Communications Clearance
-agents-comms/private/*.json
-agents-comms/private/*.md
-agents-comms/private/*.txt
+agents-comms/private/*
+!agents-comms/private/.gitkeep
 
-# AI Syndicate: Cortex Brain Private Core
-cortex-brain/private_core/*
-!cortex-brain/private_core/.gitkeep
+# AI Syndicate: Opaque Zone (Client Projects)
+clients/
+
+# AI Syndicate: Universal Brain Private Cores
+**/private_core/*
+!**/private_core/.gitkeep

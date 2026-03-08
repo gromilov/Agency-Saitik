@@ -1,13 +1,15 @@
 {
-  "name": "gromilov-site",
+  "name": "syndicate-core",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "deploy": "astro build && echo '✅ Deployed to /var/www/sites/gromilov.saitik.su'",
     "preview": "astro preview",
-    "astro": "astro"
+    "commit": "bash scripts/automation/secure_commit.sh",
+    "check": "bash scripts/automation/integrity_check.sh Nebula",
+    "guard": "bash scripts/automation/guard_env.sh",
+    "scan": "bash scripts/automation/secret_scanner.sh"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
