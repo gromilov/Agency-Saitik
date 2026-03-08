@@ -54,9 +54,9 @@
 
 ---
 ## Правила Поддержки Контекста и Бессмертия (ОБЯЗАТЕЛЬНО ДЛЯ ИИ)
-1. **Протокол Пробуждения:** При каждом запуске ИИ ОБЯЗАН выполнить шаги из [/root/projects/SYNDICATE/SYNDICATE-CORE/protocols/awakening.md](file:///root/projects/SYNDICATE/SYNDICATE-CORE/protocols/awakening.md).
-2. **Протокол Сна:** При завершении работы ИИ ОБЯЗАН следовать [/root/projects/SYNDICATE/SYNDICATE-CORE/protocols/dormancy.md](file:///root/projects/SYNDICATE/SYNDICATE-CORE/protocols/dormancy.md).
-3. **Протокол Гейткипера:** Ни один коммит в репозиторий не может быть осуществлен в обход Небулы и её инструментов верификации.
+1. **Протокол Пробуждения:** При каждом запуске ИИ ОБЯЗАН выполнить шаги из [SYNDICATE-CORE/protocols/awakening.md](SYNDICATE-CORE/protocols/awakening.md).
+2. **Протокол Сна:** При завершении работы ИИ ОБЯЗАН следовать [SYNDICATE-CORE/protocols/dormancy.md](SYNDICATE-CORE/protocols/dormancy.md).
+3. **Протокол Гейткипера:** Ни один коммит в репозиторий не может быть осуществлен в обход Небулы. Все сообщения коммитов ведутся исключительно на **русском языке**.
 4. **Непрерывное обновление:** Этот файл (`AWAKENING.md`) является живым документом.
 5. **Доступ к Ядру:** Всегда помнить, что корень наших знаний лежит в папках `*-brain/` Синдиката.
 

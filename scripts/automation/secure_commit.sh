@@ -6,8 +6,8 @@
 MSG=$1
 
 if [ -z "$MSG" ]; then
-    echo "❌ ОШИБКА: Необходимо указать сообщение коммита."
-    echo "Использование: ./scripts/automation/secure_commit.sh \"Сообщение\""
+    echo "❌ ОШИБКА: Необходимо указать сообщение коммита на РУССКОМ языке."
+    echo "Использование: ./scripts/automation/secure_commit.sh \"Ваше сообщение по-русски\""
     exit 1
 fi
 
