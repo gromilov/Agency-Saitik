@@ -1,0 +1,19 @@
+---
+interface Props {
+	status?: 'active' | 'warning' | 'alert';
+	class?: string;
+}
+
+const { status = 'active', class: className } = Astro.props;
+
+const colors = {
+	active: 'bg-nebula-accent',
+	warning: 'bg-yellow-500',
+	alert: 'bg-red-500'
+};
+---
+
+<div class:list={["relative", className]}>
+	<div class:list={["w-3 h-3 rounded-full blur-[2px] animate-pulse", colors[status as keyof typeof colors]]}></div>
+	<div class:list={["absolute inset-0 w-3 h-3 rounded-full opacity-50 blur-[6px] animate-ping", colors[status as keyof typeof colors]]}></div>
+</div>

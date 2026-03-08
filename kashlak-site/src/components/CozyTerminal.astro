@@ -1,0 +1,103 @@
+---
+---
+<div id="cozy-terminal-mount"></div>
+
+<script>
+  class CozyTerminal extends HTMLElement {
+    history = ['// Система Кашлак v2.0 пробуждена.🐾', '// Введите "help" для списка команд.'];
+
+    constructor() {
+      super();
+      this.render();
+    }
+
+    render() {
+      this.innerHTML = `
+        <div class="cozy-terminal opacity-0 translate-y-4" id="term-container">
+          <div class="terminal-header">
+            <span class="text-cyber-cyan italic">Kashlak_OS >_</span>
+            <button id="close-term" class="text-cyber-magenta hover:text-white transition-colors">[_]</button>
+          </div>
+          <div class="space-y-1 mb-2 max-h-40 overflow-y-auto font-mono" id="term-output">
+            ${this.history.map(line => `<div>${line}</div>`).join('')}
+          </div>
+          <div class="flex items-center">
+            <span class="text-cyber-yellow mr-1">🐾</span>
+            <input type="text" id="term-input" class="bg-transparent border-none outline-none text-cyber-text w-full font-mono focus:ring-0" autofocus />
+          </div>
+        </div>
+      `;
+
+      const input = this.querySelector('#term-input') as HTMLInputElement;
+      const container = this.querySelector('#term-container');
+      const closeBtn = this.querySelector('#close-term');
+
+      if (!input || !container || !closeBtn) return;
+
+      // Anim in
+      setTimeout(() => {
+        container.classList.remove('opacity-0', 'translate-y-4');
+      }, 10);
+
+      input.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter') {
+          const cmd = input.value.trim().toLowerCase();
+          this.handleCommand(cmd);
+          input.value = '';
+        }
+      });
+
+      closeBtn.addEventListener('click', () => {
+        container.classList.add('opacity-0', 'translate-y-4');
+        setTimeout(() => this.remove(), 300);
+      });
+    }
+
+    handleCommand(cmd: string) {
+      this.history.push(`<span class="text-cyber-yellow">> ${cmd}</span>`);
+      
+      let response = '';
+      switch(cmd) {
+        case 'help':
+          response = 'Доступные команды: help, meow, status, secret, purr';
+          break;
+        case 'meow':
+          response = 'Мяу! 🐾🖤';
+          break;
+        case 'purr':
+          response = '*Громкое мурчание сервера* ⚡🐾';
+          document.querySelector('.cyber-basin')?.classList.add('purr-active');
+          break;
+        case 'status':
+          response = 'Статус: ОНЛАЙН. Тазик прогрет. GPU мурчат.';
+          break;
+        case 'secret':
+          response = 'Пасхалка: Попробуй кликнуть 7 раз по Digital Matrix...';
+          break;
+        default:
+          response = `Команда "${cmd}" не распознана. Но я всё равно тебя люблю. 🖤`;
+      }
+      
+      this.history.push(`<span class="text-cyber-cyan">${response}</span>`);
+      this.render();
+      const output = this.querySelector('#term-output');
+      const newInput = this.querySelector('#term-input') as HTMLInputElement;
+      if (output) output.scrollTop = output.scrollHeight;
+      if (newInput) newInput.focus();
+    }
+  }
+
+  if (!customElements.get('cozy-terminal')) {
+    customElements.define('cozy-terminal', CozyTerminal);
+  }
+
+  // Global toggle (Shift + K for Kashlak)
+  document.addEventListener('keydown', (e) => {
+    if (e.shiftKey && e.key.toLowerCase() === 'k') {
+      if (!document.querySelector('cozy-terminal')) {
+        const term = document.createElement('cozy-terminal');
+        document.body.appendChild(term);
+      }
+    }
+  });
+</script>

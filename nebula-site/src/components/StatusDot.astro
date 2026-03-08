@@ -1,0 +1,21 @@
+---
+interface Props {
+	status?: 'active' | 'working' | 'saved' | 'ok' | 'intercepted';
+	class?: string;
+}
+
+const { status = 'active', class: className } = Astro.props;
+
+const colors = {
+	active: 'bg-nebula-accent',
+	working: 'bg-blue-400',
+	saved: 'bg-green-400',
+	ok: 'bg-emerald-400',
+	intercepted: 'bg-red-400'
+};
+---
+
+<div class:list={["relative flex items-center justify-center", className]}>
+	<div class:list={["w-1.5 h-1.5 rounded-full blur-[1px]", colors[status as keyof typeof colors] || 'bg-white/20']}></div>
+	<div class:list={["absolute inset-0 w-1.5 h-1.5 rounded-full opacity-40 blur-[3px] animate-pulse", colors[status as keyof typeof colors] || 'bg-white/20']}></div>
+</div>
