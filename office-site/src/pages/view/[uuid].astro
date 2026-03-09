@@ -1,0 +1,123 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CyberCard from '../../components/ui/CyberCard.astro';
+import { db } from '../../db';
+import { projects, clients, workSessions } from '../../db/schema';
+import { eq, desc } from 'drizzle-orm';
+
+const { uuid } = Astro.params;
+
+if (!uuid) return Astro.redirect('/404');
+
+// Получаем проект по UUID (id)
+const project = await db.query.projects.findFirst({
+  where: eq(projects.id, uuid),
+  with: {
+    client: true
+  }
+});
+
+if (!project) return Astro.redirect('/404');
+
+const sessions = await db.select()
+  .from(workSessions)
+  .where(eq(workSessions.projectId, project.id))
+  .orderBy(desc(workSessions.date));
+
+const totalMinutes = sessions.reduce((acc, s) => acc + s.minutes, 0);
+const totalHours = (totalMinutes / 60).toFixed(1);
+const totalCost = (parseFloat(totalHours) * project.hourlyRate).toLocaleString('ru-RU');
+---
+
+<Layout title={`Syndicate Office | ${project.name}`}>
+  <main class="min-h-screen p-4 md:p-12 lg:p-24 flex items-center justify-center">
+    <!-- Nebula Shield: Robots Meta -->
+    <head slot="head">
+      <meta name="robots" content="noindex, nofollow" />
+    </head>
+
+    <div class="max-w-4xl w-full glass rounded-[3rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6)] border border-white/5 relative">
+      <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#00ff9f]/50 to-transparent"></div>
+      
+      <!-- Шапка -->
+      <header class="p-10 md:p-16 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center bg-gradient-to-br from-white/[0.02] to-transparent relative gap-8">
+        <div class="relative">
+          <h1 class="text-4xl md:text-5xl font-black font-heading tracking-tighter text-white glow-text leading-none">{project.name}</h1>
+          <p class="text-[10px] uppercase tracking-[0.5em] text-[#ff00ff] mt-4 font-black letter-spacing-wide opacity-80">ДОСТУП_ПАРТНЕРА::{(project as any).client?.name}</p>
+          <div class="absolute -left-6 top-1/2 -translate-y-1/2 w-1 h-12 bg-[#00ff9f] hidden md:block"></div>
+        </div>
+        <div class="flex flex-col md:items-end">
+          <div class="px-5 py-2 rounded-full bg-[#00ff9f]/10 text-[#00ff9f] border border-[#00ff9f]/20 text-[10px] uppercase font-black tracking-[0.2em] shadow-[0_0_15px_rgba(0,255,159,0.1)]">
+            СТАТУС::{project.status === 'active' ? 'АКТИВЕН' : project.status}
+          </div>
+          <p class="text-[9px] font-mono text-white/30 mt-4 uppercase tracking-widest">ШИФРОВАННЫЙ_ID_УЗЛА: {project.id.slice(0,16)}...</p>
+        </div>
+      </header>
+
+      <!-- Панель статистики -->
+      <div class="grid grid-cols-1 md:grid-cols-3 border-b border-white/5 bg-black/20">
+        <div class="p-10 border-r border-white/5 group hover:bg-white/[0.02] transition-all">
+          <h3 class="text-[10px] uppercase text-white/40 mb-3 tracking-[0.3em] font-bold">Накопленная энергия</h3>
+          <p class="text-4xl md:text-5xl font-mono text-white leading-none">
+              {totalHours} <span class="text-[12px] text-[#00ff9f] font-black tracking-widest">Ч_ВСЕГО</span>
+          </p>
+        </div>
+        <div class="p-10 border-r border-white/5 group hover:bg-white/[0.02] transition-all">
+          <h3 class="text-[10px] uppercase text-white/40 mb-3 tracking-[0.3em] font-bold">Ставка ценности</h3>
+          <p class="text-4xl md:text-5xl font-mono text-white leading-none">
+              {project.hourlyRate} <span class="text-[12px] text-[#00ff9f] font-black tracking-widest">{project.currency}/Ч</span>
+          </p>
+        </div>
+        <div class="p-10 bg-[#ff00ff]/5 relative group">
+          <div class="absolute top-0 right-0 p-4 animate-pulse">
+            <div class="w-1 h-1 bg-[#ff00ff] rounded-full shadow-[0_0_10px_#ff00ff]"></div>
+          </div>
+          <h3 class="text-[10px] uppercase text-[#ff00ff] mb-3 tracking-[0.3em] font-black">Текущий долг узла</h3>
+          <p class="text-4xl md:text-5xl font-mono text-[#ff00ff] glow-text leading-none">
+              {totalCost} <span class="text-[12px] opacity-60 font-black tracking-widest uppercase">{project.currency}</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Лог работ -->
+      <div class="p-10 md:p-16">
+        <h2 class="text-2xl font-heading mb-10 flex items-center gap-4 text-white">
+          <span class="text-[#ff00ff] font-black italic">{" > "}</span> ДЕТАЛЬНЫЙ_КВАНТОВЫЙ_ЛОГ
+        </h2>
+        
+        <div class="space-y-6">
+          {sessions.length === 0 ? (
+            <div class="text-center py-24 glass rounded-[2rem] border-dashed">
+                <p class="text-5xl mb-6 opacity-10">∅</p>
+                <p class="text-xs uppercase tracking-[0.4em] text-white/20 italic font-mono">Нейронная активность для этого узла еще не зафиксирована.</p>
+            </div>
+          ) : (
+            sessions.map(s => (
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-6 glass rounded-2xl hover:bg-white/[0.04] transition-all duration-500 group border-l-4 border-l-[#ff00ff]/20 hover:border-l-[#ff00ff]">
+                <div class="flex-1 space-y-2">
+                  <div class="flex items-center gap-3">
+                    <span class="text-[9px] font-black font-mono text-[#00ff9f] tracking-widest uppercase opacity-60">{s.date}</span>
+                    <div class="w-1 h-1 rounded-full bg-white/10"></div>
+                    <span class="text-[9px] text-white/20 font-bold uppercase tracking-widest">Фиксация_Узла</span>
+                  </div>
+                  <p class="text-sm md:text-base text-white/70 group-hover:text-white transition-colors leading-relaxed">{s.description}</p>
+                </div>
+                <div class="mt-4 md:mt-0 md:ml-8 text-right bg-black/40 px-4 py-2 rounded-xl border border-white/5">
+                  <span class="font-mono text-xl text-[#ff00ff] font-bold tracking-tighter">{s.minutes} <span class="text-[10px] text-white/30 uppercase ml-1">МИН</span></span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <!-- Футер / Метка -->
+      <footer class="p-10 bg-black/40 border-t border-white/5 text-center relative">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-[1px] bg-gradient-to-r from-transparent via-[#00ff9f]/30 to-transparent"></div>
+        <p class="text-[9px] uppercase tracking-[0.6em] text-white/20 font-black">
+          Офис Синдиката // Архитектура Zero Trust // Защищенный узел // v1.0_PROD
+        </p>
+      </footer>
+    </div>
+  </main>
+</Layout>

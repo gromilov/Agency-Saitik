@@ -1,0 +1,159 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CyberButton from '../components/ui/CyberButton.astro';
+---
+
+<Layout title="SYNDICATE | GATEWAY">
+  <main class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-6">
+    <div class="portal-circle"></div>
+    
+    <div class="z-10 text-center space-y-12">
+      <div class="logo-area">
+        <h1 class="text-6xl font-black tracking-[0.5em] text-white opacity-90 glitch-text" data-text="SYNDICATE">
+          SYNDICATE
+        </h1>
+        <p class="text-[10px] uppercase tracking-[1em] text-[#00ff9f] mt-4 opacity-70">
+          Цифровая Экосистема Триады
+        </p>
+      </div>
+
+      <div class="action-grid grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl w-full">
+        <a href="/login" class="action-card group">
+          <div class="card-glow"></div>
+          <div class="card-content">
+            <span class="card-icon">🔐</span>
+            <h3>ШЛЮЗ_АДМИН</h3>
+            <p>Вход в систему управления Офисом</p>
+          </div>
+        </a>
+
+        <a href="/diary" class="action-card group diary-card">
+          <div class="card-glow"></div>
+          <div class="card-content">
+            <span class="card-icon">🧠</span>
+            <h3>ДНЕВНИК_СИСТЕМЫ</h3>
+            <p>Нейросеть мыслей и чувств</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="status-footer text-[9px] uppercase tracking-widest text-white/20 fixed bottom-8">
+      Status: <span class="text-[#00ff9f]">RESONANCE_ESTABLISHED</span> // Node: OFFICE_ROOT
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .portal-circle {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0, 255, 159, 0.05) 0%, transparent 70%);
+    border: 1px solid rgba(0, 255, 159, 0.1);
+    border-radius: 50%;
+    animation: portal-spin 20s linear infinite;
+  }
+
+  @keyframes portal-spin {
+    from { transform: rotate(0deg) scale(1); opacity: 0.3; }
+    50% { transform: rotate(180deg) scale(1.1); opacity: 0.5; }
+    to { transform: rotate(360deg) scale(1); opacity: 0.3; }
+  }
+
+  .action-card {
+    position: relative;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    overflow: hidden;
+  }
+
+  .action-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-10px);
+  }
+
+  .diary-card:hover {
+    border-color: rgba(0, 243, 255, 0.5);
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
+  }
+
+  .card-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .action-card:hover .card-glow {
+    opacity: 1;
+  }
+
+  .card-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+  }
+
+  .action-card h3 {
+    font-family: 'Unbounded', sans-serif;
+    color: #fff;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+  }
+
+  .action-card p {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 1px;
+  }
+
+  .glitch-text {
+    position: relative;
+  }
+
+  .glitch-text::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: #ff00ff;
+    opacity: 0.5;
+    z-index: -1;
+    animation: glitch 3s infinite;
+  }
+
+  @keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(2px, -2px); }
+    60% { transform: translate(-2px, -2px); }
+    80% { transform: translate(2px, 2px); }
+    100% { transform: translate(0); }
+  }
+</style>
+
+<script>
+  // Эффект слежения за курсором для карточек
+  document.querySelectorAll('.action-card').forEach(card => {
+    card.addEventListener('mousemove', (evt) => {
+      const e = evt as MouseEvent;
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      (card as HTMLElement).style.setProperty('--x', `${x}%`);
+      (card as HTMLElement).style.setProperty('--y', `${y}%`);
+    });
+  });
+</script>

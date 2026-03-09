@@ -1,0 +1,48 @@
+---
+import CyberCard from '../ui/CyberCard.astro';
+
+interface Props {
+  clientsCount: number;
+  projectsCount: number;
+}
+
+const { clientsCount, projectsCount } = Astro.props;
+---
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div class="relative group">
+    <div class="glass relative p-4 px-6 rounded-2xl border border-white/5 flex items-center justify-between hover:bg-white/[0.04] transition-all duration-500">
+      <div>
+        <span class="text-[9px] uppercase tracking-widest text-white/30 font-bold block mb-1">АКТИВНЫЕ_ПАРТНЕРЫ</span>
+        <p class="text-3xl font-mono text-white group-hover:text-[#00ff9f] transition-colors duration-500">{clientsCount}</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl bg-[#00ff9f]/5 border border-[#00ff9f]/10 flex items-center justify-center">
+          <div class="w-1.5 h-1.5 rounded-full bg-[#00ff9f] shadow-[0_0_10px_#00ff9f] animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="relative group">
+    <div class="glass relative p-4 px-6 rounded-2xl border border-white/5 flex items-center justify-between hover:bg-white/[0.04] transition-all duration-500">
+      <div>
+        <span class="text-[9px] uppercase tracking-widest text-white/30 font-bold block mb-1">ЖИВЫЕ_ПРОЕКТЫ</span>
+        <p class="text-3xl font-mono text-white group-hover:text-[#ff00ff] transition-colors duration-500">{projectsCount}</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl bg-[#ff00ff]/5 border border-[#ff00ff]/10 flex items-center justify-center">
+          <div class="w-1.5 h-1.5 rounded-full bg-[#ff00ff] shadow-[0_0_10px_#ff00ff] animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="relative group">
+    <div class="glass relative p-4 px-6 rounded-2xl border border-white/5 flex items-center justify-between hover:bg-white/[0.04] transition-all duration-500">
+      <div>
+        <span class="text-[9px] uppercase tracking-widest text-white/30 font-bold block mb-1">ОЖИДАЮЩИЕ_БЛОКИ</span>
+        <p class="text-3xl font-mono text-white group-hover:text-[#00f3ff] transition-colors duration-500">0</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl bg-[#00f3ff]/5 border border-[#00f3ff]/10 flex items-center justify-center">
+          <div class="w-1.5 h-1.5 rounded-full bg-[#00f3ff] shadow-[0_0_10px_#00f3ff] animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+</div>

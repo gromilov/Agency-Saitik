@@ -1,0 +1,55 @@
+---
+import CyberInput from '../ui/CyberInput.astro';
+import CyberButton from '../ui/CyberButton.astro';
+import CyberSelect from '../ui/CyberSelect.astro';
+
+interface Props {
+  clients: Array<{ id: string; name: string }>;
+}
+
+const { clients } = Astro.props;
+---
+
+<form action="/api/projects" method="POST" class="space-y-8 p-2">
+  <div class="space-y-8">
+    <CyberInput 
+      label="Кодовое имя актива (Проект)" 
+      name="name" 
+      placeholder="НАЗВАНИЕ_НОВОЙ_МИССИИ" 
+      required 
+    />
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <CyberSelect label="Владелец цели (Клиент)" name="clientId" required>
+        <option value="" disabled selected>ВЫБРАТЬ_КЛИЕНТА_ИЗ_БАЗЫ</option>
+        {clients.map(c => (
+          <option value={c.id} class="bg-[#0b0b1a] font-mono">{c.name}</option>
+        ))}
+      </CyberSelect>
+
+      <div class="space-y-2">
+        <label class="text-[9px] uppercase tracking-widest text-white/40 ml-1 font-bold">Энерго-ставка (Час)</label>
+        <div class="relative">
+          <input 
+            type="number" 
+            name="hourlyRate" 
+            placeholder="0000" 
+            required 
+            class="w-full bg-black/40 border border-white/10 p-4 rounded-xl focus:border-[#ff00ff] outline-none text-sm font-mono text-white transition-all shadow-inner hover:border-[#ff00ff]/30 focus:shadow-[0_0_15px_rgba(255,0,255,0.1)]" 
+          />
+          <span class="absolute right-4 top-4 text-[10px] text-white/40 font-bold tracking-widest">РУБ/Ч</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt-8 border-t border-white/5">
+    <CyberButton type="submit" variant="outline">
+      Развернуть инфраструктуру
+    </CyberButton>
+  </div>
+
+  <p class="text-[9px] uppercase tracking-widest text-white/20 font-bold mt-4 animate-pulse">
+    [ СИСТЕМНОЕ_СООБЩЕНИЕ: Инициирована подготовка к трансляции ресурсов... ]
+  </p>
+</form>

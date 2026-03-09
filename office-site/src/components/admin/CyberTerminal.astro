@@ -1,0 +1,59 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+const initialLogs = [
+  "ИНИЦИАЛИЗАЦИЯ_ЯДРА_СИНДИКАТА... [OK]",
+  "УСТАНОВКА_НЕЙРОСВЯЗИ... [ПОДКЛЮЧЕНО]",
+  "СКАНИРОВАНИЕ_ПРОЕКТНЫХ_УЗЛОВ... НАЙДЕНО_128",
+  "МОНИТОРИНГ_ЭНЕРГОПОТОКА... СТАБИЛЕН",
+  "ЗАЩИТА_НЕБУЛЫ::АКТИВНА: УРОВЕНЬ_5",
+  "ДОБРО_ПОЖАЛОВАТЬ, АРХИТЕКТОР"
+];
+---
+
+<div class:list={["cyber-terminal font-mono text-[10px] p-6 rounded-2xl border border-[#00ff9f]/20 bg-black/60 shadow-[inset_0_0_20px_rgba(0,255,159,0.1)] relative overflow-hidden group", className]}>
+  <!-- Glass reflection -->
+  <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+  
+  <div class="flex items-center gap-2 mb-4 border-b border-[#00ff9f]/10 pb-2">
+    <div class="flex gap-1">
+      <div class="w-1.5 h-1.5 rounded-full bg-[#ff00ff]/40"></div>
+      <div class="w-1.5 h-1.5 rounded-full bg-[#00ff9f]/40"></div>
+    </div>
+    <span class="text-[#00ff9f]/40 uppercase tracking-[0.3em] font-black italic">СИСТЕМНЫЙ_ВЫВОД</span>
+  </div>
+
+  <div id="terminal-lines" class="space-y-1 text-[#00ff9f]/80">
+    {initialLogs.map(log => (
+      <div class="flex gap-3">
+        <span class="opacity-30">[{new Date().toLocaleTimeString()}]</span>
+        <span class="typing-effect">{log}</span>
+      </div>
+    ))}
+  </div>
+
+  <div class="mt-4 flex gap-2 items-center text-[#ff00ff] animate-pulse">
+    <span>></span>
+    <span class="w-2 h-4 bg-[#ff00ff] shadow-[0_0_8px_#ff00ff]"></span>
+  </div>
+
+  <!-- Scanline -->
+  <div class="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]"></div>
+</div>
+
+<style>
+  .typing-effect {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 1px solid transparent;
+  }
+
+  .cyber-terminal {
+    backdrop-filter: blur(10px);
+  }
+</style>

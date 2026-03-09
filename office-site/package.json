@@ -1,0 +1,26 @@
+{
+  "name": "office-site",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.1.0",
+    "@tailwindcss/vite": "^4.2.1",
+    "astro": "^5.17.1",
+    "better-sqlite3": "^11.5.0",
+    "drizzle-orm": "^0.39.0",
+    "lucide-react": "^0.474.0",
+    "nanoid": "^5.0.9",
+    "tailwindcss": "^4.2.1"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.0"
+  }
+}

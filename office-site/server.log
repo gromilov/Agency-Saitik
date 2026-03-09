@@ -1,0 +1,49 @@
+nohup: ignoring input
+🐾 Начинаю деплой Синдикат-Офиса...
+🐾 Шаг 1: Сборка проекта (Astro SSR)...
+
+> office-site@0.1.0 build
+> astro build
+
+05:01:01 [@astrojs/node] Enabling sessions with filesystem storage
+05:01:01 [content] Syncing content
+05:01:01 [content] Synced content
+05:01:01 [types] Generated 36ms
+05:01:01 [build] output: "server"
+05:01:01 [build] mode: "server"
+05:01:01 [build] directory: /root/projects/SYNDICATE/office-site/dist/
+05:01:01 [build] adapter: @astrojs/node
+05:01:01 [build] Collecting build info...
+05:01:01 [build] ✓ Completed in 62ms.
+05:01:01 [build] Building server entrypoints...
+05:01:02 [vite] ✓ built in 1.50s
+05:01:02 [build] ✓ Completed in 1.55s.
+
+ building client (vite) 
+05:01:02 [vite] transforming...
+05:01:02 [vite] ✓ 2 modules transformed.
+05:01:02 [vite] rendering chunks...
+05:01:02 [vite] ✓ built in 31ms
+
+ prerendering static routes 
+05:01:02 ✓ Completed in 22ms.
+
+05:01:02 [build] Rearranging server assets...
+05:01:02 [build] Server built in 1.68s
+05:01:02 [build] Complete!
+🐾 Шаг 2: Запуск/Перезапуск через PM2...
+[32m[PM2] [39mApplying action deleteProcessId on app [office-site](ids: [ 0 ])
+[32m[PM2] [39m[office-site](0) ✓
+┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+└────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[32m[PM2] [39mStarting /root/projects/SYNDICATE/office-site/dist/server/entry.mjs in fork_mode (1 instance)
+[32m[PM2] [39mDone.
+┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ [1m[36m0[39m[22m  │ office-site    │ default     │ 0.1.0   │ [7m[1mfork[22m[27m    │ 1307328  │ 0s     │ 0    │ [32m[1monline[22m[39m    │ 0%       │ 16.8mb   │ [1mroot[22m     │ [90mdisabled[39m │
+└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[32m[PM2] [39mSaving current process list...
+[32m[PM2] [39mSuccessfully saved in /root/.pm2/dump.pm2
+🐾 Деплой завершен! Офис готов к работе на порту 4321.

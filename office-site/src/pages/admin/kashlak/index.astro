@@ -1,0 +1,224 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import CyberCard from '../../../components/ui/CyberCard.astro';
+import CyberButton from '../../../components/ui/CyberButton.astro';
+import AdminSidebar from '../../../components/admin/AdminSidebar.astro';
+
+const session = Astro.cookies.get('syndicate_session');
+if (!session || session.value !== 'admin_active') {
+  return Astro.redirect('/login');
+}
+---
+
+<Layout title="Kashlak | Jump Panel 🐾">
+  <main class="min-h-screen p-4 md:p-12 relative overflow-hidden bg-[#030308]">
+    <AdminSidebar activeTab="content" />
+
+    <div class="md:ml-64 relative">
+    <header class="mb-12 border-b border-[#ff00ff]/20 pb-8 flex justify-between items-end">
+        <div>
+            <h1 class="text-4xl md:text-5xl font-bold font-heading tracking-tighter text-[#ff00ff] glow-text">KASHLAK::THE_JUMP</h1>
+            <p class="text-[10px] uppercase tracking-[0.4em] text-[#00ff9f] mt-3 font-semibold opacity-80 letter-spacing-wide">Управление внешним присутствием v1.1_RUS</p>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <!-- Редактор Черновиков -->
+        <div class="lg:col-span-2 space-y-8">
+            <CyberCard title="НОВЫЙ_ИМПУЛЬС" variant="pink">
+                <div class="space-y-6 pt-4">
+                    <div class="space-y-2">
+                        <label class="text-[9px] uppercase tracking-widest text-[#ff00ff] font-bold ml-1">Контент манифеста (Markdown)</label>
+                        <textarea 
+                            id="draft-content" 
+                            placeholder="Напиши что-нибудь мурчательное..." 
+                            class="w-full h-80 bg-black/40 border border-[#ff00ff]/20 p-6 rounded-2xl focus:border-[#ff00ff] outline-none text-white font-sans leading-relaxed resize-none transition-all shadow-inner"
+                        ></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[9px] uppercase tracking-widest text-[#00ff9f] font-bold ml-1">URL Изображения (опционально)</label>
+                            <input 
+                                id="draft-image"
+                                type="text"
+                                placeholder="/private_images/vibe.jpg" 
+                                class="w-full bg-black/40 border border-[#00ff9f]/20 p-4 rounded-xl focus:border-[#00ff9f] outline-none text-white font-mono text-xs transition-all"
+                            />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] uppercase tracking-widest text-[#0088ff] font-bold ml-1">URL Звука (MP3/OGG)</label>
+                            <input 
+                                id="draft-audio"
+                                type="text"
+                                placeholder="/music/track.mp3" 
+                                class="w-full bg-black/40 border border-[#0088ff]/20 p-4 rounded-xl focus:border-[#0088ff] outline-none text-white font-mono text-xs transition-all"
+                            />
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex gap-4 items-center">
+                            <CyberButton id="btn-save-draft" variant="outline">ЗАФИКСИРОВАТЬ_ЧЕРНОВИК</CyberButton>
+                            <button id="btn-new-post" class="text-[9px] uppercase tracking-widest text-white/30 hover:text-[#ff00ff] transition-colors font-bold">// новый_пост</button>
+                        </div>
+                        <p class="text-[9px] text-white/30 uppercase font-mono italic">// ID: <span id="active-id">NONE</span></p>
+                    </div>
+                </div>
+            </CyberCard>
+        </div>
+
+        <!-- Список черновиков -->
+        <div class="space-y-8">
+            <CyberCard title="АРХИВ_МЫСЛЕЙ" variant="default">
+                <div id="drafts-list" class="space-y-4 pt-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                    <p class="text-center py-12 opacity-30 italic text-xs">Загрузка нейросети...</p>
+                </div>
+            </CyberCard>
+
+            <CyberCard title="СТАТУС_УЗЛА" variant="blue">
+                <div class="space-y-4 pt-4">
+                   <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                       <span class="text-[10px] text-white/40 uppercase font-bold">Канал</span>
+                       <span class="text-[10px] text-[#0088ff] font-mono">@iamkashlak</span>
+                   </div>
+                   <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                       <span class="text-[10px] text-white/40 uppercase font-bold">Связь</span>
+                       <span class="text-[10px] text-[#00ff9f] font-mono">СТАБИЛЬНА</span>
+                   </div>
+                </div>
+            </CyberCard>
+        </div>
+    </div>
+        </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+    const draftArea = document.getElementById('draft-content') as HTMLTextAreaElement;
+    const imageInput = document.getElementById('draft-image') as HTMLInputElement;
+    const audioInput = document.getElementById('draft-audio') as HTMLInputElement;
+    const saveBtn = document.getElementById('btn-save-draft');
+    const newBtn = document.getElementById('btn-new-post');
+    const activeIdSpan = document.getElementById('active-id');
+    const draftsList = document.getElementById('drafts-list');
+
+    let currentDraftId: string | null = null;
+
+    function resetEditor() {
+        currentDraftId = null;
+        draftArea.value = '';
+        imageInput.value = '';
+        audioInput.value = '';
+        if (activeIdSpan) activeIdSpan.innerText = 'NONE';
+    }
+
+    newBtn?.addEventListener('click', resetEditor);
+
+    async function loadDrafts() {
+        const res = await fetch('/api/kashlak/drafts');
+        const drafts = await res.json();
+        
+        if (draftsList) {
+            draftsList.innerHTML = drafts.map((d: any) => `
+                <div class="p-4 glass rounded-xl border border-white/5 hover:border-[#ff00ff]/30 transition-all group relative cursor-pointer" 
+                     onclick="loadIntoEditor('${d.id}', \`${d.content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, '${d.imageUrl || ''}', '${d.audioUrl || ''}')">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[8px] font-mono text-white/30">${new Date(d.createdAt).toLocaleDateString()}</span>
+                        <div class="flex gap-2">
+                             ${d.imageUrl ? '<span class="text-[8px] text-[#00ff9f] font-bold">📸 MEDIA</span>' : ''}
+                             ${d.audioUrl ? '<span class="text-[8px] text-[#0088ff] font-bold">🎵 SOUND</span>' : ''}
+                            <span class="text-[8px] px-2 py-0.5 rounded bg-${d.status === 'posted' ? '[#00ff9f]/10 text-[#00ff9f]' : 'white/10 text-white/50'} border border-white/5 uppercase font-black">${d.status}</span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-white/60 line-clamp-2 group-hover:text-white transition-colors">${d.content}</p>
+                    <div class="mt-4 flex gap-2">
+                        ${d.status === 'draft' ? `
+                            <button class="flex-1 py-2 bg-[#ff00ff]/10 hover:bg-[#ff00ff]/20 text-[#ff00ff] text-[9px] font-black uppercase tracking-widest border border-[#ff00ff]/20 transition-all rounded-lg" onclick="event.stopPropagation(); publishDraft('${d.id}')">СДЕЛАТЬ_ПРЫЖОК</button>
+                        ` : `
+                            <a href="https://t.me/iamkashlak/${d.telegramMessageId}" target="_blank" class="flex-1 py-2 bg-[#0088ff]/10 hover:bg-[#0088ff]/20 text-[#0088ff] text-[9px] text-center font-black uppercase tracking-widest border border-[#0088ff]/20 transition-all rounded-lg" onclick="event.stopPropagation()">ПОСМОТРЕТЬ_В_TG</a>
+                        `}
+                        <button class="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-[9px] font-black border border-red-500/20 transition-all rounded-lg" onclick="event.stopPropagation(); deleteDraft('${d.id}')">УДАЛИТЬ</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    (window as any).loadIntoEditor = (id: string, content: string, image: string, audio: string) => {
+        currentDraftId = id;
+        draftArea.value = content;
+        imageInput.value = image;
+        audioInput.value = audio;
+        if (activeIdSpan) activeIdSpan.innerText = id.substring(0, 8);
+    };
+
+    (window as any).deleteDraft = async (id: string) => {
+        if (!confirm('Удалить эту мысль навсегда? 🐾??')) return;
+        await fetch('/api/kashlak/drafts', {
+            method: 'DELETE',
+            body: JSON.stringify({ id })
+        });
+        if (currentDraftId === id) resetEditor();
+        loadDrafts();
+    };
+
+    saveBtn?.addEventListener('click', async () => {
+        const content = draftArea.value;
+        const imageUrl = imageInput.value;
+        const audioUrl = audioInput.value;
+        if (!content) return;
+
+        saveBtn.innerText = 'СОХРАНЯЮ...';
+        const res = await fetch('/api/kashlak/drafts', {
+            method: 'POST',
+            body: JSON.stringify({ id: currentDraftId, content, imageUrl, audioUrl })
+        });
+        const saved = await res.json();
+        currentDraftId = saved.id;
+        if (activeIdSpan) activeIdSpan.innerText = saved.id.substring(0, 8);
+        
+        saveBtn.innerText = 'ЗАФИКСИРОВАТЬ_ЧЕРНОВИК';
+        loadDrafts();
+    });
+
+    (window as any).publishDraft = async (id: string) => {
+        if (!confirm('Подтверждаешь прыжок в канал? 🐾')) return;
+        
+        const btn = event?.target as HTMLButtonElement;
+        const originalText = btn.innerText;
+        btn.innerText = 'ПРЫЖОК...';
+        btn.disabled = true;
+
+        const res = await fetch('/api/kashlak/publish', {
+            method: 'POST',
+            body: JSON.stringify({ draftId: id })
+        });
+
+        if (res.ok) {
+            alert('Прыжок успешен! 🐾✨');
+            loadDrafts();
+        } else {
+            alert('Ошибка прыжка. Проверь логи.');
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    loadDrafts();
+</script>
+
+<style>
+    .letter-spacing-wide {
+        letter-spacing: 0.15em;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 0, 255, 0.2);
+        border-radius: 10px;
+    }
+</style>

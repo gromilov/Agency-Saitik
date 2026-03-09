@@ -33,3 +33,8 @@ clients/
 # AI Syndicate: Universal Brain Private Cores
 **/private_core/*
 !**/private_core/.gitkeep
+**/private_*/**
+!**/private_*/**/.gitkeep
+# AI Syndicate: Private Post Assets (Kashlak's Jump)
+office-site/public/private_images/*
+!office-site/public/private_images/.gitkeep

@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../../.."
+		},
+		{
+			"path": "../../../../../../../etc/nginx"
+		}
+	],
+	"settings": {
+		"remote.autoForwardPortsFallback": 0
+	}
+}

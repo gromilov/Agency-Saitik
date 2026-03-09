@@ -1,0 +1,70 @@
+---
+---
+<div class="guard-pulse-container">
+  <div class="pulse-ring ring-1"></div>
+  <div class="pulse-ring ring-2"></div>
+  <div class="pulse-ring ring-3"></div>
+  <div class="core-eye">
+    <div class="eye-inner"></div>
+  </div>
+</div>
+
+<style>
+  .guard-pulse-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pulse-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    width: 100%;
+    height: 100%;
+    animation: ring-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    opacity: 0;
+  }
+
+  .ring-1 { animation-delay: 0s; }
+  .ring-2 { animation-delay: 1.3s; }
+  .ring-3 { animation-delay: 2.6s; }
+
+  @keyframes ring-pulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.5; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+
+  .core-eye {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    background: #a162e8;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #a162e8, 0 0 40px rgba(161, 98, 232, 0.5);
+    z-index: 2;
+    overflow: hidden;
+  }
+
+  .eye-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: 60%;
+    background: white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px white;
+    animation: eye-blink 8s infinite;
+  }
+
+  @keyframes eye-blink {
+    0%, 95%, 100% { transform: translate(-50%, -50%) scaleY(1); }
+    97% { transform: translate(-50%, -50%) scaleY(0.1); }
+  }
+</style>

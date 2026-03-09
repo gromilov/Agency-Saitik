@@ -1,0 +1,37 @@
+---
+interface Props {
+  variant?: 'primary' | 'secondary' | 'outline';
+  type?: 'button' | 'submit';
+  class?: string;
+  [key: string]: any;
+}
+
+const { variant = 'primary', type = 'button', class: className, ...rest } = Astro.props;
+
+const variants = {
+  primary: "bg-[#00ff9f] text-[#030308] hover:bg-[#ff00ff] hover:text-white shadow-[0_10px_20px_rgba(0,255,159,0.1)]",
+  secondary: "bg-[#ff00ff] text-white hover:bg-[#00ff9f] hover:text-[#030308] shadow-[0_10px_20px_rgba(255,0,255,0.1)]",
+  outline: "bg-transparent border-2 border-[#ff00ff] text-[#ff00ff] hover:bg-[#ff00ff] hover:text-white shadow-[0_0_15px_rgba(255,0,255,0.1)]"
+};
+---
+
+<button 
+  type={type} 
+  class:list={[
+    "w-full py-4 rounded-xl transition-all uppercase tracking-[0.3em] text-xs font-black active:scale-[0.98] cursor-pointer relative overflow-hidden group/btn",
+    variants[variant],
+    className
+  ]}
+  {...rest}
+>
+  <span class="relative z-10 transition-transform group-hover/btn:scale-105 inline-block">
+    <slot />
+  </span>
+  <div class="absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover/btn:animate-[shimmer_1.5s_infinite]"></div>
+</button>
+
+<style>
+  @keyframes shimmer {
+    100% { left: 100%; }
+  }
+</style>

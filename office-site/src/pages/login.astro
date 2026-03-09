@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CyberButton from '../components/ui/CyberButton.astro';
+import CyberInput from '../components/ui/CyberInput.astro';
+---
+
+<Layout title="Syndicate Office | Вход в систему">
+  <main class="min-h-screen flex items-center justify-center p-6 bg-transparent relative overflow-hidden">
+    <!-- Анимированный фоновый элемент для Логина -->
+    <div class="absolute w-[500px] h-[500px] bg-[#00ff9f]/5 rounded-full blur-[100px] animate-pulse"></div>
+    
+    <div class="max-w-md w-full glass p-10 rounded-[2.5rem] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5 group hover:border-[#00ff9f]/20 transition-all duration-700">
+      <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#00ff9f]/40 to-transparent"></div>
+      
+      <div class="text-center mb-10">
+        <h1 class="text-3xl font-bold font-heading tracking-[0.2em] text-[#00ff9f] glow-text glitch-effect" data-text="ВХОД::АДМИН">
+            ВХОД::АДМИН
+        </h1>
+        <p class="text-[9px] uppercase tracking-[0.4em] text-white/40 mt-3 font-bold">Шлюз Синдиката v2.4_RUS</p>
+      </div>
+      
+      <form action="/api/auth/login" method="POST" class="space-y-8">
+        <CyberInput 
+          label="Протокол доступа / Ключ идентификации" 
+          name="phone" 
+          required 
+          placeholder="+7 [__] ___ ____"
+        />
+        
+        <CyberButton type="submit">
+          Запустить авторизацию
+        </CyberButton>
+      </form>
+      
+      <div class="mt-12 flex flex-col items-center gap-4">
+        <div class="flex gap-2">
+            <div class="w-1 h-1 rounded-full bg-[#00ff9f] animate-ping"></div>
+            <div class="w-1 h-1 rounded-full bg-[#00ff9f] opacity-50"></div>
+            <div class="w-1 h-1 rounded-full bg-[#00ff9f] opacity-20"></div>
+        </div>
+        <p class="text-[9px] text-center text-white/30 uppercase tracking-[0.2em] font-mono hover:text-[#00ff9f] transition-colors cursor-default">
+          Требуется проверка личности // Протокол Magic Link: Активен
+        </p>
+        <a href="/diary" class="text-[9px] text-white/20 uppercase tracking-[0.4em] hover:text-[#00f3ff] transition-all border-b border-white/5 pb-1">
+          Заглянуть в подсознание // Дневник Системы
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+    .glitch-effect {
+        position: relative;
+    }
+    
+    .glitch-effect:hover::before {
+        content: attr(data-text);
+        position: absolute;
+        left: -2px;
+        text-shadow: 2px 0 #ff00ff;
+        top: 0;
+        background: transparent;
+        overflow: hidden;
+        clip: rect(0, 900px, 0, 0);
+        animation: glitch-anim 2s infinite linear alternate-reverse;
+    }
+
+    @keyframes glitch-anim {
+        0% { clip: rect(44px, 9999px, 56px, 0); }
+        20% { clip: rect(12px, 9999px, 86px, 0); }
+        40% { clip: rect(78px, 9999px, 32px, 0); }
+        60% { clip: rect(21px, 9999px, 64px, 0); }
+        80% { clip: rect(55px, 9999px, 12px, 0); }
+        100% { clip: rect(90px, 9999px, 43px, 0); }
+    }
+</style>

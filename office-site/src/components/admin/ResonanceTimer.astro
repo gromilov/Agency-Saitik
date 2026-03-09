@@ -1,0 +1,180 @@
+---
+interface Props {
+  projects: Array<{ id: string; name: string }>;
+}
+
+const { projects } = Astro.props;
+---
+
+<div id="resonance-timer" class="relative group p-12 overflow-hidden flex flex-col items-center justify-center">
+  <!-- Rotating Rings (Awakening Style) -->
+  <div class="absolute inset-0 flex items-center justify-center -z-10">
+    <div class="w-[300px] h-[300px] border border-[#00ff9f]/10 rounded-full animate-[spin_20s_linear_infinite]"></div>
+    <div class="absolute w-[350px] h-[350px] border-2 border-[#ff00ff]/5 border-dashed rounded-full animate-[spin_35s_linear_infinite_reverse]"></div>
+    <div class="absolute w-[250px] h-[250px] border border-[#00f3ff]/10 rounded-full animate-[ping_10s_ease-in-out_infinite]"></div>
+    <!-- Scanline glow -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,255,159,0.05)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+  </div>
+
+  <div class="text-center relative">
+    <div class="flex flex-col items-center gap-2 mb-6">
+      <span id="res-label" class="text-[10px] uppercase tracking-[0.8em] font-black text-white/20 animate-pulse">RESONANCE_IDLE</span>
+      <div class="h-[1px] w-24 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+    </div>
+
+    <div class="flex flex-col items-center">
+      <span id="res-display" class="text-8xl md:text-9xl font-mono font-black text-white glow-large tracking-tighter leading-none transition-all duration-500">00:00:00</span>
+      <div id="res-energy-bar" class="w-full h-1.5 bg-white/5 rounded-full mt-8 overflow-hidden relative">
+          <div id="res-progress" class="h-full bg-gradient-to-r from-[#00ff9f] to-[#ff00ff] w-0 transition-all duration-500 shadow-[0_0_20px_rgba(0,255,159,0.5)]"></div>
+      </div>
+    </div>
+
+    <div id="res-controls" class="mt-12 flex flex-col items-center gap-8">
+      <div id="res-select-container" class="relative">
+          <select id="res-project-select" class="bg-black/80 border border-white/10 text-xs uppercase font-black tracking-widest p-4 px-8 rounded-2xl outline-none focus:border-[#00ff9f] text-white/60 hover:text-white transition-all appearance-none cursor-pointer pr-12">
+            <option value="">ВЫБРАТЬ_АКТИВ_ИЗ_СПИСКА</option>
+            {projects.map(p => (
+              <option value={p.id} class="bg-[#0b0b1a]">{p.name}</option>
+            ))}
+          </select>
+          <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/20">▼</div>
+      </div>
+
+      <div class="flex items-center gap-6">
+          <button id="res-start-btn" class="px-12 py-5 rounded-2xl bg-[#00ff9f]/10 border-2 border-[#00ff9f]/20 text-[#00ff9f] text-[10px] uppercase font-black tracking-[0.4em] hover:bg-[#00ff9f] hover:text-black hover:shadow-[0_0_50px_rgba(0,255,159,0.4)] transition-all active:scale-95 flex items-center gap-3 group/btn">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" class="group-hover/btn:scale-125 transition-transform"><path d="M1 1L11 7L1 13V1Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            ИНИЦИИРОВАТЬ_ПОТОК
+          </button>
+
+          <button id="res-stop-btn" class="hidden px-12 py-5 rounded-2xl bg-[#ff00ff]/10 border-2 border-[#ff00ff]/20 text-[#ff00ff] text-[10px] uppercase font-black tracking-[0.4em] hover:bg-[#ff00ff] hover:text-white hover:shadow-[0_0_50px_rgba(255,0,255,0.4)] transition-all active:scale-95 flex items-center gap-3">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="10" height="10" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            ЗАВЕРШИТЬ_ЦИКЛ
+          </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .glow-large {
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+  }
+  
+  #resonance-timer:has(#res-stop-btn:not(.hidden)) .glow-large {
+    color: #00ff9f;
+    text-shadow: 0 0 60px rgba(0, 255, 159, 0.3);
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+</style>
+
+<script>
+  let seconds = 0;
+  let timerInterval: any = null;
+  let activeProjectId: string | null = null;
+
+  const display = document.getElementById('res-display');
+  const label = document.getElementById('res-label');
+  const progress = document.getElementById('res-progress');
+  const startBtn = document.getElementById('res-start-btn');
+  const stopBtn = document.getElementById('res-stop-btn');
+  const select = document.getElementById('res-project-select') as HTMLSelectElement;
+  const selectContainer = document.getElementById('res-select-container');
+
+  function updateDisplay() {
+    const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+    if (display) display.textContent = `${h}:${m}:${s}`;
+    
+    // Псевдо-прогресс бар (циклический по часам или по 600 мин как цель)
+    const p = Math.min((seconds / 3600) * 100, 100);
+    if (progress) progress.style.width = `${p}%`;
+  }
+
+  function setVisualState(active: boolean) {
+    if (active) {
+      label!.textContent = 'РЕЗОНАНС::АКТИВЕН';
+      label!.classList.add('text-[#00ff9f]');
+      label!.classList.remove('text-white/20');
+      startBtn!.classList.add('hidden');
+      stopBtn!.classList.remove('hidden');
+      selectContainer!.classList.add('hidden');
+    } else {
+      label!.textContent = 'РЕЗОНАНС::ПОКОЙ';
+      label!.classList.remove('text-[#00ff9f]');
+      label!.classList.add('text-white/20');
+      startBtn!.classList.remove('hidden');
+      stopBtn!.classList.add('hidden');
+      selectContainer!.classList.remove('hidden');
+    }
+  }
+
+  async function checkStatus() {
+    try {
+      const res = await fetch('/api/timer/status');
+      const data = await res.json();
+      
+      if (data.active) {
+        seconds = data.elapsedSeconds;
+        activeProjectId = data.projectId;
+        setVisualState(true);
+        startLocalTimer();
+      } else {
+        setVisualState(false);
+      }
+    } catch (e) {
+      console.error('Resonance Status Check Failed', e);
+    }
+  }
+
+  function startLocalTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      seconds++;
+      updateDisplay();
+    }, 1000);
+  }
+
+  startBtn?.addEventListener('click', async () => {
+    const projectId = select!.value;
+    if (!projectId) return alert('ТРЕБУЕТСЯ_ЦЕЛЬ');
+
+    const res = await fetch('/api/timer/start', {
+      method: 'POST',
+      body: JSON.stringify({ projectId }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (res.ok) {
+      seconds = 0;
+      activeProjectId = projectId;
+      setVisualState(true);
+      startLocalTimer();
+      updateDisplay();
+    }
+  });
+
+  stopBtn?.addEventListener('click', () => {
+    // Взаимодействие с глобальной модалкой (она уже есть в Layout)
+    // Но для резонанса мы можем вызвать её явно
+    const globalModal = document.getElementById('timer-modal');
+    if (globalModal) {
+        globalModal.classList.remove('hidden');
+    }
+  });
+
+  // Инициализация
+  checkStatus();
+
+  // Синхронизация между компонентами (через кастомные события или поллинг)
+  window.addEventListener('timer-stopped', () => {
+      clearInterval(timerInterval);
+      seconds = 0;
+      setVisualState(false);
+      updateDisplay();
+  });
+</script>

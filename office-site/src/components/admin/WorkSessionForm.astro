@@ -1,0 +1,69 @@
+---
+import CyberInput from '../ui/CyberInput.astro';
+import CyberButton from '../ui/CyberButton.astro';
+import CyberSelect from '../ui/CyberSelect.astro';
+
+interface Props {
+  projects: Array<{ id: string; name: string }>;
+}
+
+const { projects } = Astro.props;
+---
+
+<form action="/api/sessions" method="POST" class="space-y-8 p-2">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <CyberSelect label="Целевой узел (Проект)" name="projectId" required>
+      <option value="" disabled selected>ВЫБРАТЬ_ПРОЕКТ_ИЗ_СПИСКА</option>
+      {projects.map(p => (
+        <option value={p.id} class="bg-[#0b0b1a] font-mono whitespace-normal">{p.name}</option>
+      ))}
+    </CyberSelect>
+    
+    <CyberInput 
+      label="Дата импульса" 
+      name="date" 
+      type="date" 
+      value={new Date().toISOString().split('T')[0]} 
+      required 
+    />
+  </div>
+
+  <CyberInput 
+    label="Манифест задачи (Что было сделано)" 
+    name="description" 
+    placeholder="ОПИСАНИЕ_ВЫПОЛНЕННОЙ_РАБОТЫ" 
+    required 
+  />
+
+  <div class="space-y-4">
+    <label class="text-[9px] uppercase tracking-[0.3em] text-white/40 ml-1 font-bold block">
+      Квантовые единицы энергии (Минуты)
+    </label>
+    <div class="relative group">
+      <input 
+        type="number" 
+        name="minutes" 
+        placeholder="00" 
+        required 
+        class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl focus:border-[#00ff9f] outline-none text-xl font-mono text-white transition-all shadow-inner group-hover:border-white/20" 
+      />
+      <div class="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-3">
+        <span class="text-[10px] text-white/40 font-bold tracking-widest uppercase">МИН</span>
+        <div class="w-1.5 h-1.5 rounded-full bg-[#00ff9f] shadow-[0_0_10px_#00ff9f]"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt-8 border-t border-white/5">
+    <CyberButton type="submit" variant="secondary">
+      Зафиксировать во времени
+    </CyberButton>
+  </div>
+
+  <div class="bg-[#ff00ff]/5 border border-[#ff00ff]/10 p-4 rounded-xl mt-6 flex items-start gap-4">
+    <span class="text-[#ff00ff] animate-pulse">!</span>
+    <p class="text-[9px] text-[#ff00ff]/70 font-mono leading-relaxed uppercase tracking-tighter">
+      [ ВНИМАНИЕ: Ввод данных напрямую влияет на расчетный баланс нейросети. Будьте точны в своих измерениях. ]
+    </p>
+  </div>
+</form>

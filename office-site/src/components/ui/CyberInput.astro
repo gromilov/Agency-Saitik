@@ -1,0 +1,31 @@
+---
+interface Props {
+  label?: string;
+  name: string;
+  type?: string;
+  placeholder?: string;
+  required?: boolean;
+  value?: string;
+  class?: string;
+  [key: string]: any;
+}
+
+const { label, name, type = 'text', placeholder, required, value, class: className, ...rest } = Astro.props;
+---
+
+<div class:list={["space-y-2", className]}>
+  {label && <label class="text-[9px] uppercase tracking-widest text-white/40 ml-1 font-bold">{label}</label>}
+  <div class="relative group/input">
+    <input 
+      type={type} 
+      name={name} 
+      id={name}
+      placeholder={placeholder} 
+      required={required} 
+      value={value}
+      class="w-full bg-black/40 border border-white/10 p-4 rounded-xl focus:border-[#00ff9f] outline-none text-sm font-mono text-white transition-all shadow-inner focus:shadow-[0_0_15px_rgba(0,255,159,0.1)]"
+      {...rest}
+    />
+    <div class="absolute inset-0 rounded-xl border border-[#00ff9f]/0 group-focus-within/input:border-[#00ff9f]/20 pointer-events-none transition-all duration-500"></div>
+  </div>
+</div>

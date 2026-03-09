@@ -1,0 +1,37 @@
+---
+import CyberInput from '../ui/CyberInput.astro';
+import CyberButton from '../ui/CyberButton.astro';
+---
+
+<form action="/api/clients" method="POST" class="space-y-8 p-2">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <CyberInput 
+      label="Идентификатор (Имя)" 
+      name="name" 
+      placeholder="ПОЛНОЕ_ИМЯ_КЛИЕНТА" 
+      required 
+    />
+    <CyberInput 
+      label="Протокол связи (TG)" 
+      name="telegram" 
+      placeholder="@USERNAME" 
+    />
+  </div>
+  
+  <CyberInput 
+    label="Точка биллинга (Email)" 
+    name="email" 
+    type="email" 
+    placeholder="EX@MPLE.COM" 
+  />
+  
+  <div class="pt-6 border-t border-white/5">
+    <CyberButton type="submit">
+      Инициализировать канал
+    </CyberButton>
+  </div>
+
+  <p class="text-[9px] uppercase tracking-widest text-white/20 font-bold mt-4">
+    * Данные будут надежно зашифрованы в базе Синдиката
+  </p>
+</form>

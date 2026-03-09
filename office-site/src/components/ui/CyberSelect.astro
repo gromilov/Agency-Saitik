@@ -1,0 +1,28 @@
+---
+interface Props {
+  label?: string;
+  name: string;
+  required?: boolean;
+  class?: string;
+}
+
+const { label, name, required, class: className } = Astro.props;
+---
+
+<div class:list={["space-y-2", className]}>
+  {label && <label class="text-[9px] uppercase tracking-widest text-white/40 ml-1 font-bold">{label}</label>}
+  <div class="relative group/select">
+    <select 
+      name={name} 
+      id={name}
+      required={required}
+      class="w-full bg-black/40 border border-white/10 p-4 rounded-xl focus:border-[#00ff9f] outline-none text-sm font-mono text-white appearance-none transition-all shadow-inner focus:shadow-[0_0_15px_rgba(0,255,159,0.1)]"
+    >
+      <slot />
+    </select>
+    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/20">
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="absolute inset-0 rounded-xl border border-[#00ff9f]/0 group-focus-within/select:border-[#00ff9f]/20 pointer-events-none transition-all duration-500"></div>
+  </div>
+</div>

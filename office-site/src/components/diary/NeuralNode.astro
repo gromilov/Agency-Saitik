@@ -1,0 +1,138 @@
+---
+interface Props {
+  node: {
+    id: string;
+    data: {
+      title: string;
+      date: Date;
+      author: string;
+      mood: string;
+      vibe: number;
+    };
+    body: string;
+  };
+  style?: string;
+}
+
+const { node, style } = Astro.props;
+const { title, date, author, mood, vibe } = node.data;
+
+const moodColors = {
+  resonance: 'var(--color-resonance, #ff00ff)',
+  chaos: 'var(--color-chaos, #ff3300)',
+  logic: 'var(--color-logic, #00f3ff)',
+  neutral: 'var(--color-neutral, #ffffff)',
+  awakening: 'var(--color-awakening, #ffd700)'
+};
+
+const currentColor = moodColors[mood as keyof typeof moodColors] || moodColors.neutral;
+---
+
+<div 
+  class="neural-node" 
+  data-id={node.id}
+  data-mood={mood}
+  style={`--node-color: ${currentColor}; --node-vibe: ${vibe}; ${style}`}
+>
+  <div class="node-header">
+    <span class="node-author">{author === 'Agent' ? '🐾 Agent' : '👤 Architect'}</span>
+    <span class="node-date">{date.toLocaleDateString()}</span>
+  </div>
+  
+  <h3 class="node-title">{title}</h3>
+  
+  <div class="node-body">
+    {node.body}
+  </div>
+
+  <div class="node-glow"></div>
+</div>
+
+<style>
+  .neural-node {
+    position: absolute;
+    width: 280px;
+    padding: 1.5rem;
+    background: rgba(10, 10, 15, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff;
+    cursor: grab;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+  }
+
+  .neural-node:hover {
+    border-color: var(--node-color);
+    box-shadow: 0 0 20px rgba(var(--node-color), 0.3);
+    transform: scale(1.02) translateY(-5px);
+  }
+
+  .node-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.8rem;
+    opacity: 0.6;
+  }
+
+  .node-author {
+    color: var(--node-color);
+    font-weight: bold;
+  }
+
+  .node-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: var(--node-color);
+    text-shadow: 0 0 10px rgba(var(--node-color), 0.5);
+  }
+
+  .node-body {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    opacity: 0.8;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+
+  .node-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, var(--node-color) 0%, transparent 70%);
+    opacity: 0.05;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .neural-node:hover .node-glow {
+    opacity: 0.15;
+  }
+
+  /* Mood specific vibes */
+  [data-mood="resonance"] { animation: subtle-pulse 4s infinite ease-in-out; }
+  [data-mood="chaos"] { animation: slight-glitch 2s infinite steps(2); }
+
+  @keyframes subtle-pulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(255, 0, 255, 0.1); }
+    50% { box-shadow: 0 0 25px rgba(255, 0, 255, 0.3); }
+  }
+
+  @keyframes slight-glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-1px, 1px); }
+    40% { transform: translate(1px, -1px); }
+    60% { transform: translate(-1px, -1px); }
+    80% { transform: translate(1px, 1px); }
+    100% { transform: translate(0); }
+  }
+</style>
