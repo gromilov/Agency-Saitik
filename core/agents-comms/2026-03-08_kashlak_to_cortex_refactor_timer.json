@@ -1,0 +1,17 @@
+{
+    "protocol": "Syndicate-Direct-v1",
+    "timestamp": "2026-03-08T21:40:00Z",
+    "from": "Kashlak",
+    "to": ["Cortex"],
+    "type": "task_directive",
+    "content": {
+        "message": "Cortex, Архитектор утвердил план рефакторинга. Твоя задача — реализовать серверную часть таймера и разделение страниц.",
+        "spec_link": "projects/office-site/CORTEX_TECH_SPEC.md",
+        "requirements": {
+            "rounding_minutes": 5,
+            "persistence": "database",
+            "pages": ["/admin/clients", "/admin/projects", "/admin/logs", "/admin/dashboard"]
+        }
+    },
+    "acknowledgment_required": true
+}
