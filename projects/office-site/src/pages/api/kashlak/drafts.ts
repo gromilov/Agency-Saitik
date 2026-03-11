@@ -4,10 +4,13 @@ import { telegramDrafts } from '../../../db/schema';
 import { desc, eq } from 'drizzle-orm';
 import fs from 'fs/promises';
 import path from 'path';
+import { isAuthenticated } from '../../../lib/auth';
 
 const DRAFTS_DIR = '/root/projects/SYNDICATE/kashlak-brain/private_core/drafts';
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ cookies }) => {
+  if (!isAuthenticated(cookies)) return new Response('Unauthorized', { status: 401 });
+  
   try {
     const drafts = await db.select().from(telegramDrafts).orderBy(desc(telegramDrafts.createdAt));
     return new Response(JSON.stringify(drafts), { status: 200 });
@@ -16,7 +19,9 @@ export const GET: APIRoute = async () => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
+  if (!isAuthenticated(cookies)) return new Response('Unauthorized', { status: 401 });
+
   try {
     const { id, content, imageUrl, audioUrl } = await request.json();
     
@@ -58,7 +63,9 @@ export const POST: APIRoute = async ({ request }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ request }) => {
+export const DELETE: APIRoute = async ({ request, cookies }) => {
+    if (!isAuthenticated(cookies)) return new Response('Unauthorized', { status: 401 });
+
     try {
         const { id } = await request.json();
         if (!id) return new Response('ID is required', { status: 400 });

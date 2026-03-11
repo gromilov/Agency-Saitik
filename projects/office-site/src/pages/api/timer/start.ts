@@ -2,8 +2,11 @@ import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { systemState } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
+import { isAuthenticated } from '../../../lib/auth';
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
+  if (!isAuthenticated(cookies)) return new Response('Unauthorized', { status: 401 });
+
   try {
     const { projectId } = await request.json();
 

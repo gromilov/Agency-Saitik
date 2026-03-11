@@ -1,8 +1,11 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { projects } from '../../../db/schema';
+import { isAuthenticated } from '../../../lib/auth';
 
-export const POST: APIRoute = async ({ request, redirect }) => {
+export const POST: APIRoute = async ({ request, redirect, cookies }) => {
+  if (!isAuthenticated(cookies)) return new Response('Unauthorized', { status: 401 });
+
   const formData = await request.formData();
   const name = formData.get('name') as string;
   const clientId = formData.get('clientId') as string;

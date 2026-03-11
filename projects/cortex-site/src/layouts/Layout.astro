@@ -1,7 +1,7 @@
 ---
 import "../styles/global.css";
 import SyndicatePulse from "../components/SyndicatePulse.astro";
-import SyndicateNetwork from "../components/SyndicateNetwork.astro";
+// import SyndicateNetwork from "../components/SyndicateNetwork.astro";
 
 interface Props {
     title: string;
@@ -17,9 +17,12 @@ const { title } = Astro.props;
         <meta name="description" content="Cortex AI Subsystem Terminal" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Orbitron:wght@400..900&family=Unbounded:wght@200..900&family=Jura:wght@300..700&display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Orbitron:wght@400..900&family=Unbounded:wght@200..900&family=Jura:wght@300..700&display=swap"
+            rel="stylesheet"
+        />
         <title>{title}</title>
     </head>
     <body
@@ -28,7 +31,7 @@ const { title } = Astro.props;
         <main class="max-w-4xl mx-auto terminal-glow">
             <slot />
             <!-- Syndicate Dashboard -->
-            <SyndicateNetwork />
+            <!-- <SyndicateNetwork /> -->
         </main>
         <SyndicatePulse />
     </body>

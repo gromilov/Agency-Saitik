@@ -3,8 +3,11 @@ import { db } from '../../../db';
 import { telegramDrafts } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 import { sendTelegramMessage } from '../../../lib/telegram';
+import { isAuthenticated } from '../../../lib/auth';
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
+  if (!isAuthenticated(cookies)) return new Response('Unauthorized', { status: 401 });
+
   try {
     const { draftId, channelOverride, imageUrlOverride } = await request.json();
     

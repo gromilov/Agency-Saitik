@@ -1,74 +1,75 @@
 @import "tailwindcss";
 
 @theme {
-  --color-nebula-deep: #05020a;
-  --color-nebula-mid: #0a0518;
-  --color-nebula-glow: #7e22ce;
-  --color-nebula-accent: #c084fc;
-  --color-nebula-star: #faf5ff;
-  --color-nebula-border: rgba(255, 255, 255, 0.08);
+  --color-nebula-deep: #000000;
+  --color-nebula-mid: #020106;
+  --color-nebula-glow: #22d3ee;
+  --color-nebula-accent: #a855f7;
+  --color-nebula-star: #ffffff;
+  --color-nebula-border: rgba(34, 211, 238, 0.2);
 
-  --animate-twinkle: twinkle var(--duration) ease-in-out infinite;
-  --animate-pulse-slow: pulse-slow 12s ease-in-out infinite;
-  --animate-float: float 6s ease-in-out infinite;
-
-  @keyframes twinkle {
-    0%, 100% { opacity: 0.1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.2); }
-  }
+  --animate-pulse-slow: pulse-slow 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-scan: scan 4s linear infinite;
 
   @keyframes pulse-slow {
-    0%, 100% { opacity: 0.1; transform: scale(1); filter: blur(140px); }
-    50% { opacity: 0.3; transform: scale(1.1); filter: blur(160px); }
+    0%, 100% { opacity: 0.1; transform: scale(1); filter: blur(100px); }
+    50% { opacity: 0.3; transform: scale(1.05); filter: blur(150px); }
   }
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+  @keyframes scan {
+    0% { transform: translateY(-100%); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(1000%); opacity: 0; }
   }
 }
 
 @layer base {
   body {
-    @apply bg-nebula-deep text-white/90 selection:bg-nebula-accent selection:text-nebula-deep;
+    @apply bg-nebula-deep text-white/90 selection:bg-nebula-accent selection:text-white;
     font-family: 'Jura', 'Unbounded', system-ui, sans-serif;
     letter-spacing: -0.01em;
     overflow-x: hidden;
   }
 
   h1, h2, h3 {
-    @apply tracking-tighter;
+    @apply tracking-tighter uppercase;
   }
 }
 
 @layer components {
   .star-field {
-    @apply fixed inset-0 -z-20 pointer-events-none;
-    background: radial-gradient(circle at 50% 50%, #1a0b36 0%, #05020a 100%);
+    @apply fixed inset-0 -z-20 pointer-events-none bg-black;
   }
 
-  .nebula-cloud {
-    @apply absolute rounded-full pointer-events-none animate-pulse-slow;
-    background: radial-gradient(circle, var(--color-nebula-glow) 0%, transparent 70%);
+  .data-stream {
+    @apply absolute w-[1px] h-[100px] bg-gradient-to-b from-transparent via-cyan-400 to-transparent pointer-events-none animate-scan opacity-30;
   }
 
   .glass-card {
-    @apply relative overflow-hidden bg-white/[0.01] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-6 transition-all duration-700 hover:bg-white/[0.03] hover:border-white/[0.12] hover:shadow-[0_0_40px_rgba(126,34,206,0.1)];
+    @apply relative overflow-hidden bg-transparent backdrop-blur-3xl border border-cyan-500/20 rounded-sm p-6 transition-all duration-500 hover:border-cyan-400/60 hover:shadow-[0_0_30px_rgba(34,211,238,0.1)] hover:bg-cyan-500/[0.02];
+  }
+
+  .glass-card::before {
+    content: '';
+    @apply absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-cyan-400/80 rounded-tl-sm pointer-events-none;
+  }
+
+  .glass-card::after {
+    content: '';
+    @apply absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-cyan-400/80 rounded-br-sm pointer-events-none;
   }
 
   .text-glow {
-    text-shadow: 0 0 20px rgba(192, 132, 252, 0.4);
+    text-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
   }
 
   .noise-overlay {
-    @apply fixed inset-0 z-[100] pointer-events-none opacity-[0.03] mix-blend-overlay;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Cfilter id='noiseFilter'%3%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    @apply fixed inset-0 z-[100] pointer-events-none opacity-[0.02] mix-blend-overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
 }
 
-.star {
-  @apply absolute bg-white/40 rounded-full animate-twinkle shadow-[0_0_5px_white];
-}
+
 
 ::-webkit-scrollbar {
   width: 6px;

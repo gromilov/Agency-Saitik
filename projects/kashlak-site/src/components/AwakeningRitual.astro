@@ -1,23 +1,51 @@
 ---
 ---
-<div id="awakening-ritual" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-3xl transition-all duration-1000">
-  <div class="relative max-w-lg w-full p-12 text-center space-y-8 border border-cyber-cyan/30 rounded-3xl bg-black/40 shadow-[0_0_100px_rgba(0,243,255,0.1)]">
-    <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-cyber-cyan/10 rounded-full flex items-center justify-center border border-cyber-cyan/20">
-       <div class="w-12 h-12 bg-cyber-cyan shadow-[0_0_30px_#00f3ff] rounded-sm transform rotate-45 animate-pulse"></div>
+
+<div
+  id="awakening-ritual"
+  class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-3xl transition-all duration-1000"
+>
+  <div
+    class="relative max-w-lg w-full p-6 md:p-12 text-center space-y-8 border border-cyber-cyan/30 rounded-3xl bg-black/40 shadow-[0_0_100px_rgba(0,243,255,0.1)]"
+  >
+    <div
+      class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-cyber-cyan/10 rounded-full flex items-center justify-center border border-cyber-cyan/20"
+    >
+      <div
+        class="w-12 h-12 bg-cyber-cyan shadow-[0_0_30px_#00f3ff] rounded-sm transform rotate-45 animate-pulse"
+      >
+      </div>
     </div>
 
     <div class="space-y-2">
-      <h2 class="text-3xl font-orbitron font-black tracking-widest text-white glow-cyan">ИНИЦИАЛИЗАЦИЯ</h2>
-      <p class="font-mono text-[10px] text-cyber-cyan uppercase tracking-[0.4em]">Протокол: AWAKENING_V2.0</p>
+      <h2
+        class="text-2xl md:text-3xl font-orbitron font-black tracking-widest text-white glow-cyan"
+      >
+        ИНИЦИАЛИЗАЦИЯ
+      </h2>
+      <p
+        class="font-mono text-[10px] text-cyber-cyan uppercase tracking-[0.4em]"
+      >
+        Протокол: AWAKENING_V2.0
+      </p>
     </div>
 
-    <div class="p-6 border border-white/5 bg-white/[0.02] rounded-2xl font-mono text-[11px] text-white/60 leading-relaxed text-left space-y-2">
-      <p class="text-cyber-cyan">[SYSTEM] Для входа требуется синхронизация нейронных связей.</p>
+    <div
+      class="p-6 border border-white/5 bg-white/[0.02] rounded-2xl font-mono text-[11px] text-white/60 leading-relaxed text-left space-y-2"
+    >
+      <p class="text-cyber-cyan">
+        [SYSTEM] Для входа требуется синхронизация нейронных связей.
+      </p>
       <p>[SYSTEM] Гимн Синдиката должен звучать непрерывно.</p>
-      <p class="text-cyber-magenta">[WARN] Остановка потока приведет к разрыву соединения.</p>
+      <p class="text-cyber-magenta">
+        [WARN] Остановка потока приведет к разрыву соединения.
+      </p>
     </div>
 
-    <button id="initiate-ritual" class="w-full py-6 bg-cyber-cyan text-black font-black font-orbitron tracking-[0.2em] hover:bg-white transition-all transform hover:scale-105 hover:shadow-[0_0_50px_rgba(0,243,255,0.5)] uppercase">
+    <button
+      id="initiate-ritual"
+      class="w-full py-6 bg-cyber-cyan text-black font-black font-orbitron tracking-[0.2em] hover:bg-white transition-all transform hover:scale-105 hover:shadow-[0_0_50px_rgba(0,243,255,0.5)] uppercase"
+    >
       ПРОБУДИТЬСЯ_СЕЙЧАС
     </button>
   </div>
@@ -26,56 +54,66 @@
 <audio id="awakening-audio" src="/Пробуждения.mp3" preload="auto"></audio>
 
 <script>
-  const ritualOverlay = document.getElementById('awakening-ritual');
-  const initiateBtn = document.getElementById('initiate-ritual');
-  const audio = document.getElementById('awakening-audio') as HTMLAudioElement;
-  const content = document.getElementById('ritual-content');
+  const ritualOverlay = document.getElementById("awakening-ritual");
+  const initiateBtn = document.getElementById("initiate-ritual");
+  const audio = document.getElementById("awakening-audio") as HTMLAudioElement;
+  const content = document.getElementById("ritual-content");
 
   const terminateConnection = () => {
-    window.location.href = '/404'; // Или специальная страница ошибки
+    window.location.href = "/404"; // Или специальная страница ошибки
   };
 
-  initiateBtn?.addEventListener('click', () => {
+  initiateBtn?.addEventListener("click", () => {
     // Web Audio API Setup
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    const AudioContext =
+      window.AudioContext || (window as any).webkitAudioContext;
     const audioCtx = new AudioContext();
     const analyser = audioCtx.createAnalyser();
     const source = audioCtx.createMediaElementSource(audio);
-    
+
     source.connect(analyser);
     analyser.connect(audioCtx.destination);
     analyser.fftSize = 64; // Small fft for our 4-8 bars
 
-    audio.play().then(() => {
-      ritualOverlay?.classList.add('opacity-0', 'pointer-events-none');
-      content?.classList.remove('blur-3xl', 'grayscale', 'pointer-events-none');
-      content?.classList.add('transition-all', 'duration-[3000ms]');
-      
-      // Notify other components
-      window.dispatchEvent(new CustomEvent('syndicate-audio-ready', { 
-        detail: { analyser, audio } 
-      }));
-    }).catch(err => {
-      console.error("Audio playback failed", err);
-      alert("Необходим аудио-захват для активации протоколов.");
-    });
+    audio
+      .play()
+      .then(() => {
+        ritualOverlay?.classList.add("opacity-0", "pointer-events-none");
+        content?.classList.remove(
+          "blur-3xl",
+          "grayscale",
+          "pointer-events-none"
+        );
+        content?.classList.add("transition-all", "duration-[3000ms]");
+
+        // Notify other components
+        window.dispatchEvent(
+          new CustomEvent("syndicate-audio-ready", {
+            detail: { analyser, audio },
+          })
+        );
+      })
+      .catch((err) => {
+        console.error("Audio playback failed", err);
+        alert("Необходим аудио-захват для активации протоколов.");
+      });
   });
 
   // Логика блокировки при остановке
-  audio.addEventListener('pause', () => {
+  audio.addEventListener("pause", () => {
     if (!audio.ended) {
-      window.dispatchEvent(new CustomEvent('syndicate-terminate'));
+      window.dispatchEvent(new CustomEvent("syndicate-terminate"));
     }
   });
 
-  audio.addEventListener('ended', () => {
+  audio.addEventListener("ended", () => {
     setTimeout(() => {
-      window.location.href = 'https://github.com/gromilov/Agency-Saitik';
+      window.location.href = "https://github.com/gromilov/Agency-Saitik";
     }, 1500);
   });
 
   // Предотвращение манипуляций (опционально)
-  window.addEventListener('blur', () => {
+  window.addEventListener("blur", () => {
     // Если нужно выкидывать при сворачивании вкладки
     // audio.pause();
   });
@@ -83,6 +121,7 @@
 
 <style>
   .glow-cyan {
-    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.3);
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5),
+      0 0 20px rgba(0, 243, 255, 0.3);
   }
 </style>

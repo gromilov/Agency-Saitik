@@ -2,8 +2,11 @@ import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { systemState } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
+import { isAuthenticated } from '../../../lib/auth';
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ cookies }) => {
+  if (!isAuthenticated(cookies)) return new Response('Unauthorized', { status: 401 });
+
   try {
     const state = await db.query.systemState.findFirst({
       where: eq(systemState.id, 1)

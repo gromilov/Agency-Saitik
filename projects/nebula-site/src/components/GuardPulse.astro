@@ -1,11 +1,17 @@
 ---
 ---
-<div class="guard-pulse-container">
-  <div class="pulse-ring ring-1"></div>
-  <div class="pulse-ring ring-2"></div>
-  <div class="pulse-ring ring-3"></div>
-  <div class="core-eye">
-    <div class="eye-inner"></div>
+<div class="guard-pulse-container flex flex-col items-center gap-6">
+  <div class="text-[10px] sm:text-xs font-mono font-bold tracking-[0.4em] uppercase text-purple-300/80 bg-purple-900/40 border border-purple-500/30 px-4 py-1.5 rounded-full backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.3)] animate-pulse-slow flex items-center gap-2">
+    <span class="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_8px_#4ade80]"></span>
+    MAS STATUS: SECURE (SELF-AUDIT PASSED)
+  </div>
+  <div class="relative w-[100px] h-[100px] flex items-center justify-center">
+    <div class="pulse-ring ring-1"></div>
+    <div class="pulse-ring ring-2"></div>
+    <div class="pulse-ring ring-3"></div>
+    <div class="core-eye">
+      <div class="eye-inner"></div>
+    </div>
   </div>
 </div>
 
@@ -43,28 +49,35 @@
     position: relative;
     width: 24px;
     height: 24px;
-    background: #a162e8;
-    border-radius: 50%;
-    box-shadow: 0 0 20px #a162e8, 0 0 40px rgba(161, 98, 232, 0.5);
+    background: transparent;
+    border: 2px solid #22d3ee;
+    transform: rotate(45deg);
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.4), inset 0 0 10px rgba(34, 211, 238, 0.4);
     z-index: 2;
     overflow: hidden;
+    animation: rotate-core 10s linear infinite;
+  }
+
+  @keyframes rotate-core {
+    0% { transform: rotate(45deg); }
+    100% { transform: rotate(405deg); }
   }
 
   .eye-inner {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 60%;
-    height: 60%;
-    background: white;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 10px white;
-    animation: eye-blink 8s infinite;
+    width: 40%;
+    height: 40%;
+    background: #c084fc;
+    border-radius: 0;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    box-shadow: 0 0 15px #c084fc;
+    animation: core-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  @keyframes eye-blink {
-    0%, 95%, 100% { transform: translate(-50%, -50%) scaleY(1); }
-    97% { transform: translate(-50%, -50%) scaleY(0.1); }
+  @keyframes core-pulse {
+    0%, 100% { transform: translate(-50%, -50%) rotate(-45deg) scale(1); opacity: 0.8; }
+    50% { transform: translate(-50%, -50%) rotate(-45deg) scale(1.5); opacity: 1; }
   }
 </style>

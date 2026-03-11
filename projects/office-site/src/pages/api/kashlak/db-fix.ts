@@ -2,8 +2,11 @@ import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { sql, eq } from 'drizzle-orm';
 import { telegramDrafts } from '../../../db/schema';
+import { isAuthenticated } from '../../../lib/auth';
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ cookies }) => {
+  if (!isAuthenticated(cookies)) return new Response('Unauthorized', { status: 401 });
+  
   try {
     // 1. Create system_state
     await db.run(sql`

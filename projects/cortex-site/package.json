@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && echo '✅ Deployed to /var/www/sites/cortex.saitik.su'",
     "deploy": "astro build && echo '✅ Deployed to /var/www/sites/cortex.saitik.su'",
     "preview": "astro preview",
     "astro": "astro"
