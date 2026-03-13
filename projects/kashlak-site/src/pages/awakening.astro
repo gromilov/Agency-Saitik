@@ -274,6 +274,7 @@ import SyndicateNetwork from "../components/SyndicateNetwork.astro";
     <AwakeningRitual />
 
     <style is:global>
+      @reference "../styles/global.css";
       .glow-cyan {
         text-shadow: 0 0 10px rgba(0, 243, 255, 0.5),
           0 0 20px rgba(0, 243, 255, 0.3);
@@ -304,5 +305,9 @@ import SyndicateNetwork from "../components/SyndicateNetwork.astro";
       }
     </style>
     <!-- <SyndicatePulse /> -->
+    <script>
+      import { initSentinel } from "../../../../core/lib/sentinel";
+      initSentinel("iamkashlak.saitik.su");
+    </script>
   </body>
 </html>

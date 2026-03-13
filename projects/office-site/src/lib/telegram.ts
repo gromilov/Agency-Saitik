@@ -2,7 +2,15 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'node:crypto';
 
-export async function sendTelegramMessage(message: string, button?: { text: string, url: string }, chatId?: string, imageUrl?: string, audioUrl?: string) {
+export async function sendTelegramMessage(
+  message: string, 
+  button?: { text: string, url: string }, 
+  chatId?: string, 
+  imageUrl?: string, 
+  audioUrl?: string,
+  imageFilename?: string,
+  audioFilename?: string
+): Promise<{ success: boolean, result?: any, error?: string }> {
   const token = import.meta.env.TELEGRAM_BOT_TOKEN;
   const adminChatId = import.meta.env.ADMIN_TELEGRAM_ID;
 
@@ -13,7 +21,15 @@ export async function sendTelegramMessage(message: string, button?: { text: stri
     return { success: false, error: 'Missing configuration' };
   }
 
-  // Определяем метод
+  // Если есть и фото, и аудио — отправляем последовательно (Фото с текстом + Аудио)
+  if (imageUrl && audioUrl) {
+    const photoRes = await sendTelegramMessage(message, button, chatId, imageUrl, undefined, imageFilename, undefined);
+    if (!photoRes.success) return photoRes;
+    // Отправляем аудио вторым сообщением (без текста, чтобы не дублировать)
+    return await sendTelegramMessage('', undefined, chatId, undefined, audioUrl, undefined, audioFilename);
+  }
+
+  // Определяем метод для одиночного медиа
   let method = 'sendMessage';
   if (audioUrl) method = 'sendAudio';
   else if (imageUrl) method = 'sendPhoto';
@@ -38,7 +54,8 @@ export async function sendTelegramMessage(message: string, button?: { text: stri
       if (fs.existsSync(filePath)) {
         const fileBuffer = fs.readFileSync(filePath);
         const blob = new Blob([fileBuffer]);
-        formData.append(audioUrl ? 'thumbnail' : 'photo', blob, path.basename(filePath));
+        // Если это одиночное аудио, imageUrl может быть передан как thumbnail (но мы выше разрулили это через рекурсию)
+        formData.append(audioUrl ? 'thumbnail' : 'photo', blob, imageFilename || path.basename(filePath));
       }
     }
 
@@ -47,7 +64,7 @@ export async function sendTelegramMessage(message: string, button?: { text: stri
       if (fs.existsSync(filePath)) {
         const fileBuffer = fs.readFileSync(filePath);
         const blob = new Blob([fileBuffer]);
-        formData.append('audio', blob, path.basename(filePath));
+        formData.append('audio', blob, audioFilename || path.basename(filePath));
         body = formData;
         headers = {};
       }

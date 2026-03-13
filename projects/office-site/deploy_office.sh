@@ -7,6 +7,9 @@ set -e
 
 echo "🐾 Начинаю деплой Синдикат-Офиса..."
 
+# 0. Переход в директорию проекта
+cd "/root/projects/SYNDICATE/projects/office-site"
+
 # 1. Сборка проекта
 echo "🐾 Шаг 1: Сборка проекта (Astro SSR)..."
 npm run build

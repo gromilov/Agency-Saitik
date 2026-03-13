@@ -36,23 +36,35 @@ if (!session || session.value !== 'admin_active') {
                         ></textarea>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <label class="text-[9px] uppercase tracking-widest text-[#00ff9f] font-bold ml-1">URL Изображения (опционально)</label>
-                            <input 
-                                id="draft-image"
-                                type="text"
-                                placeholder="/private_images/vibe.jpg" 
-                                class="w-full bg-black/40 border border-[#00ff9f]/20 p-4 rounded-xl focus:border-[#00ff9f] outline-none text-white font-mono text-xs transition-all"
-                            />
+                        <div class="space-y-4">
+                            <label class="text-[9px] uppercase tracking-widest text-[#00ff9f] font-bold ml-1">Изображение (📸)</label>
+                            <div class="flex gap-2">
+                                <input 
+                                    id="draft-image"
+                                    type="text"
+                                    placeholder="/private_images/vibe.jpg" 
+                                    class="flex-1 bg-black/40 border border-[#00ff9f]/20 p-4 rounded-xl focus:border-[#00ff9f] outline-none text-white font-mono text-xs transition-all"
+                                />
+                                <button id="btn-upload-image" class="px-6 bg-[#00ff9f]/10 hover:bg-[#00ff9f]/20 text-[#00ff9f] border border-[#00ff9f]/20 rounded-xl transition-all flex items-center justify-center">
+                                    <span class="text-lg">⬆️</span>
+                                </button>
+                                <input type="file" id="input-image" accept="image/*" class="hidden" />
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[9px] uppercase tracking-widest text-[#0088ff] font-bold ml-1">URL Звука (MP3/OGG)</label>
-                            <input 
-                                id="draft-audio"
-                                type="text"
-                                placeholder="/music/track.mp3" 
-                                class="w-full bg-black/40 border border-[#0088ff]/20 p-4 rounded-xl focus:border-[#0088ff] outline-none text-white font-mono text-xs transition-all"
-                            />
+                        <div class="space-y-4">
+                            <label class="text-[9px] uppercase tracking-widest text-[#0088ff] font-bold ml-1">Аудио (🎵)</label>
+                            <div class="flex gap-2">
+                                <input 
+                                    id="draft-audio"
+                                    type="text"
+                                    placeholder="/music/track.mp3" 
+                                    class="flex-1 bg-black/40 border border-[#0088ff]/20 p-4 rounded-xl focus:border-[#0088ff] outline-none text-white font-mono text-xs transition-all"
+                                />
+                                <button id="btn-upload-audio" class="px-6 bg-[#0088ff]/10 hover:bg-[#0088ff]/20 text-[#0088ff] border border-[#0088ff]/20 rounded-xl transition-all flex items-center justify-center">
+                                    <span class="text-lg">⬆️</span>
+                                </button>
+                                <input type="file" id="input-audio" accept="audio/*" class="hidden" />
+                            </div>
                         </div>
                     </div>
                     <div class="flex justify-between items-center">
@@ -88,7 +100,6 @@ if (!session || session.value !== 'admin_active') {
             </CyberCard>
         </div>
     </div>
-        </div>
     </div>
   </main>
 </Layout>
@@ -97,15 +108,23 @@ if (!session || session.value !== 'admin_active') {
     const draftArea = document.getElementById('draft-content') as HTMLTextAreaElement;
     const imageInput = document.getElementById('draft-image') as HTMLInputElement;
     const audioInput = document.getElementById('draft-audio') as HTMLInputElement;
+    const imageBtn = document.getElementById('btn-upload-image');
+    const audioBtn = document.getElementById('btn-upload-audio');
+    const imageInputFile = document.getElementById('input-image') as HTMLInputElement;
+    const audioInputFile = document.getElementById('input-audio') as HTMLInputElement;
     const saveBtn = document.getElementById('btn-save-draft');
     const newBtn = document.getElementById('btn-new-post');
     const activeIdSpan = document.getElementById('active-id');
     const draftsList = document.getElementById('drafts-list');
 
     let currentDraftId: string | null = null;
+    let currentImageName: string | null = null;
+    let currentAudioName: string | null = null;
 
     function resetEditor() {
         currentDraftId = null;
+        currentImageName = null;
+        currentAudioName = null;
         draftArea.value = '';
         imageInput.value = '';
         audioInput.value = '';
@@ -121,7 +140,7 @@ if (!session || session.value !== 'admin_active') {
         if (draftsList) {
             draftsList.innerHTML = drafts.map((d: any) => `
                 <div class="p-4 glass rounded-xl border border-white/5 hover:border-[#ff00ff]/30 transition-all group relative cursor-pointer" 
-                     onclick="loadIntoEditor('${d.id}', \`${d.content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, '${d.imageUrl || ''}', '${d.audioUrl || ''}')">
+                     onclick="loadIntoEditor('${d.id}', \`${d.content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, '${d.imageUrl || ''}', '${d.audioUrl || ''}', '${d.imageName || ''}', '${d.audioName || ''}')">
                     <div class="flex justify-between items-start mb-2">
                         <span class="text-[8px] font-mono text-white/30">${new Date(d.createdAt).toLocaleDateString()}</span>
                         <div class="flex gap-2">
@@ -144,8 +163,10 @@ if (!session || session.value !== 'admin_active') {
         }
     }
 
-    (window as any).loadIntoEditor = (id: string, content: string, image: string, audio: string) => {
+    (window as any).loadIntoEditor = (id: string, content: string, image: string, audio: string, imageName: string = '', audioName: string = '') => {
         currentDraftId = id;
+        currentImageName = imageName || null;
+        currentAudioName = audioName || null;
         draftArea.value = content;
         imageInput.value = image;
         audioInput.value = audio;
@@ -171,7 +192,14 @@ if (!session || session.value !== 'admin_active') {
         saveBtn.innerText = 'СОХРАНЯЮ...';
         const res = await fetch('/api/kashlak/drafts', {
             method: 'POST',
-            body: JSON.stringify({ id: currentDraftId, content, imageUrl, audioUrl })
+            body: JSON.stringify({ 
+                id: currentDraftId, 
+                content, 
+                imageUrl, 
+                audioUrl,
+                imageName: currentImageName,
+                audioName: currentAudioName
+            })
         });
         const saved = await res.json();
         currentDraftId = saved.id;
@@ -179,6 +207,50 @@ if (!session || session.value !== 'admin_active') {
         
         saveBtn.innerText = 'ЗАФИКСИРОВАТЬ_ЧЕРНОВИК';
         loadDrafts();
+    });
+
+    // Handle Uploads
+    async function handleUpload(file: File, type: 'image' | 'audio', inputEl: HTMLInputElement, btnEl: HTMLElement) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', type);
+
+        const originalText = btnEl.innerText;
+        btnEl.innerText = '⏳';
+        
+        try {
+            const res = await fetch('/api/kashlak/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                inputEl.value = data.url;
+                if (type === 'image') currentImageName = data.originalName;
+                else if (type === 'audio') currentAudioName = data.originalName;
+            } else {
+                alert('Ошибка загрузки: ' + data.message);
+            }
+        } catch (e) {
+            alert('Сбой связи с ядром при загрузке.');
+        } finally {
+            btnEl.innerText = originalText;
+        }
+    }
+
+    imageBtn?.addEventListener('click', () => imageInputFile.click());
+    audioBtn?.addEventListener('click', () => audioInputFile.click());
+
+    imageInputFile?.addEventListener('change', () => {
+        if (imageInputFile.files?.length) {
+            handleUpload(imageInputFile.files[0], 'image', imageInput, imageBtn!);
+        }
+    });
+
+    audioInputFile?.addEventListener('change', () => {
+        if (audioInputFile.files?.length) {
+            handleUpload(audioInputFile.files[0], 'audio', audioInput, audioBtn!);
+        }
     });
 
     (window as any).publishDraft = async (id: string) => {

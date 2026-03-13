@@ -1,0 +1,31 @@
+---
+import { resumeData } from '../data/resumeData';
+
+const colorClasses = {
+  magenta: 'hover:border-cyber-magenta/50 text-cyber-magenta',
+  cyan: 'hover:border-cyber-cyan/50 text-cyber-cyan',
+  yellow: 'hover:border-cyber-yellow/50 text-cyber-yellow',
+  green: 'hover:border-cyber-green/50 text-cyber-green'
+};
+---
+
+<section id="skills" class="mb-16">
+  <h3 class="text-3xl font-bold mb-10 text-white">Технологический стек</h3>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    {resumeData.skillCategories.map((category) => (
+      <div class={`p-8 bg-white/[0.03] border border-white/10 rounded-[2rem] group transition-all ${colorClasses[category.color].split(' ')[0]}`}>
+        <h4 class={`${colorClasses[category.color].split(' ')[1]} text-sm font-bold mb-6 tracking-widest uppercase`}>
+          {category.title}
+        </h4>
+        <div class="flex flex-wrap gap-3 font-mono text-sm">
+          {category.skills.map((skill) => (
+            <span class="px-4 py-2 bg-white/5 text-white/80 border border-white/10 rounded-xl">
+              {skill}
+            </span>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>

@@ -51,25 +51,25 @@
     <div id="cube-core" class="cube-core absolute"></div>
     
     <!-- Laser Scanner Targeted Beam (Volumetric Cone) -->
-    <div id="core-scanner" class="absolute top-1/2 left-1/2 z-10 pointer-events-none origin-[0_50%] flex items-center transition-all duration-700 opacity-0 -translate-y-1/2 h-[120px]">
+    <div id="core-scanner" class="absolute top-1/2 left-1/2 z-10 pointer-events-none origin-[0_50%] flex items-center opacity-0 -translate-y-1/2 h-[120px]">
       
       <!-- Volumetric Cone Body (Gradients & Glass) -->
-      <div id="cone-glass" class="absolute inset-0 w-full h-full backdrop-blur-[3px] transition-all duration-500" style="clip-path: polygon(0 50%, 100% 5%, 100% 95%); background: linear-gradient(90deg, transparent 0%, rgba(34, 211, 238, 0.05) 50%, rgba(34, 211, 238, 0.2) 100%);"></div>
+      <div id="cone-glass" class="absolute inset-0 w-full h-full backdrop-blur-[3px]" style="clip-path: polygon(0 50%, 100% 5%, 100% 95%); background: linear-gradient(90deg, transparent 0%, rgba(34, 211, 238, 0.05) 50%, rgba(34, 211, 238, 0.2) 100%);"></div>
       
       <!-- Scanner Pulse Traveller (Wave of light) -->
-      <div id="cone-wave-traveller" class="absolute inset-0 w-full h-full pointer-events-none opacity-0" style="clip-path: polygon(0 50%, 100% 5%, 100% 95%); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: transform 0.1s linear;"></div>
+      <div id="cone-wave-traveller" class="absolute inset-0 w-full h-full pointer-events-none opacity-0" style="clip-path: polygon(0 50%, 100% 5%, 100% 95%); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);"></div>
 
       <!-- Cone Outlines -->
-      <svg id="cone-edges-svg" class="absolute inset-0 w-full h-full overflow-visible transition-all duration-500" preserveAspectRatio="none" viewBox="0 0 100 100">
-        <polyline id="cone-edge-top" points="0,50 100,5" stroke="rgba(34, 211, 238, 0.3)" stroke-width="1.5" vector-effect="non-scaling-stroke" fill="none" class="transition-colors duration-500" />
-        <polyline id="cone-edge-bottom" points="0,50 100,95" stroke="rgba(34, 211, 238, 0.3)" stroke-width="1.5" vector-effect="non-scaling-stroke" fill="none" class="transition-colors duration-500" />
+      <svg id="cone-edges-svg" class="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+        <polyline id="cone-edge-top" points="0,50 100,5" stroke="rgba(34, 211, 238, 0.3)" stroke-width="1.5" vector-effect="non-scaling-stroke" fill="none" />
+        <polyline id="cone-edge-bottom" points="0,50 100,95" stroke="rgba(34, 211, 238, 0.3)" stroke-width="1.5" vector-effect="non-scaling-stroke" fill="none" />
       </svg>
       
       <!-- Base Target Reticle (Larger & Integrated) -->
-      <div id="cone-base" class="w-32 h-32 rounded-full border-2 border-cyan-400/40 absolute right-[-64px] shadow-[0_0_40px_rgba(34,211,238,0.2),_inset_0_0_20px_rgba(34,211,238,0.2)] flex items-center justify-center pointer-events-none bg-cyan-500/5 backdrop-blur-[2px] transition-all duration-500 overflow-hidden">
-          <div id="cone-core-dot" class="absolute w-4 h-4 bg-cyan-100 shadow-[0_0_20px_#fff] rounded-full animate-ping transition-colors duration-500"></div>
+      <div id="cone-base" class="w-32 h-32 rounded-full border-2 border-cyan-400/40 absolute right-[-64px] shadow-[0_0_40px_rgba(34,211,238,0.2),_inset_0_0_20px_rgba(34,211,238,0.2)] flex items-center justify-center pointer-events-none bg-cyan-500/5 backdrop-blur-[2px] overflow-hidden">
+          <div id="cone-core-dot" class="absolute w-4 h-4 bg-cyan-100 shadow-[0_0_20px_#fff] rounded-full animate-ping"></div>
           <!-- Pulse wave for red state -->
-          <div id="cone-pulse-wave" class="absolute w-full h-full border-4 border-red-500/50 rounded-full opacity-0 scale-50 transition-all duration-500"></div>
+          <div id="cone-pulse-wave" class="absolute w-full h-full border-4 border-red-500/50 rounded-full opacity-0 scale-50"></div>
       </div>
     </div>
   </div>
@@ -286,21 +286,28 @@
   let mouseY = 0;
 
   window.addEventListener('mousemove', (e) => {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const deltaX = e.clientX - centerX;
+      const deltaY = e.clientY - centerY;
+
+      if (!isMouseTracking) {
+          // Jump closer on first move to remove "seeking" delay
+          currentAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+          currentDistance = Math.hypot(deltaX, deltaY);
+      }
+
       isMouseTracking = true;
       mouseX = e.clientX;
       mouseY = e.clientY;
       
       clearTimeout(idleTimer);
       idleTimer = window.setTimeout(() => {
-          isMouseTracking = false; // Mouse is idle
+          isMouseTracking = false; 
       }, 2000);
 
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      const deltaX = e.clientX - centerX;
-      const deltaY = e.clientY - centerY;
       targetAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-      targetDistance = Math.max(100, Math.hypot(deltaX, deltaY)); // minimum distance
+      targetDistance = Math.max(100, Math.hypot(deltaX, deltaY)); 
   });
 
   function visualize() {
@@ -337,23 +344,30 @@
     if (coreScanner) {
         let isDanger = false;
         
-        // Check if mouse is near stop button
-        if (stopBtn && isMouseTracking) {
+        // Check if mouse is near stop button (Independent of movement status)
+        if (stopBtn) {
             const rect = stopBtn.getBoundingClientRect();
             const btnCenterX = rect.left + rect.width / 2;
             const btnCenterY = rect.top + rect.height / 2;
             const distToBtn = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
-            if (distToBtn < 200) {
+            if (distToBtn < 250) { // Increased distance for better stickiness
                 isDanger = true;
             }
         }
 
-        if (!isMouseTracking) {
-            // Idle State: Horizontal sweeping scan over the entire width (Sped up)
-            currentAngle = Math.sin(hoverTime * 0.015) * 40 + 90; 
-            currentDistance += (window.innerWidth * 1.2 - currentDistance) * 0.05; 
+        // If in danger, we FORCE tracking even if the mouse has stopped
+        const effectiveMouseTracking = isMouseTracking || isDanger;
+
+        // Snappy interpolation
+        const interpolationFactor = isDanger ? 0.95 : 0.85;
+
+        if (!effectiveMouseTracking) {
+            // Idle State: Vertical sweep (Top to Bottom)
+            // Sweep from -100 to 100 degrees (almost full vertical circle)
+            currentAngle = Math.sin(hoverTime * 0.008) * 100; 
+            currentDistance += (window.innerWidth * 1.5 - currentDistance) * 0.05; 
             
-            // Widen the cone height when idle to act as a wide scanner plane
+            // Widen the cone height when idle
             coreScanner.style.height = `${window.innerHeight * 0.9}px`;
             
             hoverTime++;
@@ -361,8 +375,8 @@
             // Active Tracking State
             let diff = targetAngle - currentAngle;
             diff = Math.atan2(Math.sin(diff * Math.PI/180), Math.cos(diff * Math.PI/180)) * (180 / Math.PI);
-            currentAngle += diff * 0.4;
-            currentDistance += (targetDistance - currentDistance) * 0.4;
+            currentAngle += diff * interpolationFactor;
+            currentDistance += (targetDistance - currentDistance) * interpolationFactor;
             
             // Normal targeted cone height
             coreScanner.style.height = `120px`;

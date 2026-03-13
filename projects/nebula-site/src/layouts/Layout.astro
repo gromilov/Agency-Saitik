@@ -30,5 +30,9 @@ const { title } = Astro.props;
 			<slot />
 		</main>
 		<SyndicatePulse />
+		<script>
+			import { initSentinel } from "../../../../core/lib/sentinel";
+			initSentinel("nebula.saitik.su");
+		</script>
 	</body>
 </html>

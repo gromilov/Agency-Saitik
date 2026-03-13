@@ -38,3 +38,6 @@ clients/
 # AI Syndicate: Private Post Assets (Kashlak's Jump)
 projects/office-site/public/private_images/*
 !projects/office-site/public/private_images/.gitkeep
+
+# AI Syndicate: Operator Private Info
+INFO_OPERATOR.md

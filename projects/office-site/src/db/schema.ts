@@ -56,11 +56,26 @@ export const telegramDrafts = sqliteTable('telegram_drafts', {
   id: text('id').primaryKey().$defaultFn(() => nanoid()),
   content: text('content').notNull(),
   imageUrl: text('image_url'),
+  imageName: text('image_name'),
   audioUrl: text('audio_url'),
+  audioName: text('audio_name'),
   status: text('status', { enum: ['draft', 'queued', 'posted'] }).default('draft'),
   telegramMessageId: text('telegram_message_id'),
   scheduledAt: integer('scheduled_at', { mode: 'timestamp' }),
   postedAt: integer('posted_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+});
+
+// Комментарии из канала
+export const channelComments = sqliteTable('channel_comments', {
+  id: text('id').primaryKey().$defaultFn(() => nanoid()),
+  telegramPostId: text('telegram_post_id').notNull(),
+  telegramCommentId: text('telegram_comment_id').unique(),
+  fromUser: text('from_user').notNull(),
+  text: text('text').notNull(),
+  status: text('status', { enum: ['pending', 'replied', 'ignored'] }).default('pending'),
+  replyText: text('reply_text'),
+  repliedAt: integer('replied_at', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 });
 

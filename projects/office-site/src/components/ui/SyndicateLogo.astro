@@ -1,0 +1,41 @@
+---
+interface Props {
+  size?: number | string;
+  className?: string;
+  id?: string;
+}
+
+const { size = 32, className, id = "syndicate-logo" } = Astro.props;
+---
+
+<svg 
+  viewBox="0 0 100 100" 
+  width={size} 
+  height={size} 
+  class:list={["relative z-10", className]} 
+  id={id}
+>
+  <defs>
+    <linearGradient id={`${id}-grad`} x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ff9f" />
+      <stop offset="100%" stop-color="#ff00ff" />
+    </linearGradient>
+  </defs>
+  <!-- Внешний гексагон -->
+  <path 
+    d="M50 10 L85 30 L85 70 L50 90 L15 70 L15 30 Z" 
+    fill="none" 
+    stroke={`url(#${id}-grad)`} 
+    stroke-width="4" 
+    stroke-linejoin="round"
+    class="opacity-80"
+  />
+  <!-- Внутренняя кибер-литера S -->
+  <path 
+    d="M35 35 Q50 25 65 35 Q65 50 50 50 Q35 50 35 65 Q50 75 65 65" 
+    fill="none" 
+    stroke={`url(#${id}-grad)`} 
+    stroke-width="10" 
+    stroke-linecap="round"
+  />
+</svg>

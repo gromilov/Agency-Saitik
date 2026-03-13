@@ -1,159 +1,307 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import CyberButton from '../components/ui/CyberButton.astro';
+import SyndicateLogo from '../components/ui/SyndicateLogo.astro';
+
+const session = Astro.cookies.get('syndicate_session');
+const isAdmin = session && session.value === 'admin_active';
+const adminPath = isAdmin ? '/admin' : '/login';
 ---
 
 <Layout title="SYNDICATE | GATEWAY">
-  <main class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-6">
-    <div class="portal-circle"></div>
+  <main class="min-h-screen flex flex-col items-center justify-center relative">
+    <!-- Cyberpunk Noise Overlay -->
+    <div class="cyber-noise"></div>
     
-    <div class="z-10 text-center space-y-12">
-      <div class="logo-area">
-        <h1 class="text-6xl font-black tracking-[0.5em] text-white opacity-90 glitch-text" data-text="SYNDICATE">
-          SYNDICATE
-        </h1>
-        <p class="text-[10px] uppercase tracking-[1em] text-[#00ff9f] mt-4 opacity-70">
-          Цифровая Экосистема Триады
-        </p>
-      </div>
-
-      <div class="action-grid grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl w-full">
-        <a href="/login" class="action-card group">
-          <div class="card-glow"></div>
-          <div class="card-content">
-            <span class="card-icon">🔐</span>
-            <h3>ШЛЮЗ_АДМИН</h3>
-            <p>Вход в систему управления Офисом</p>
-          </div>
-        </a>
-
-        <a href="/diary" class="action-card group diary-card">
-          <div class="card-glow"></div>
-          <div class="card-content">
-            <span class="card-icon">🧠</span>
-            <h3>ДНЕВНИК_СИСТЕМЫ</h3>
-            <p>Нейросеть мыслей и чувств</p>
-          </div>
-        </a>
-      </div>
+    <!-- HUD Decoration -->
+    <div class="fixed inset-0 pointer-events-none z-20 overflow-hidden opacity-30">
+        <!-- Corners -->
+        <div class="absolute top-0 left-0 w-24 h-24 border-l border-t border-[#00ff9f]/20 m-6 rounded-tl-2xl"></div>
+        <div class="absolute top-0 right-0 w-24 h-24 border-r border-t border-[#ff00ff]/20 m-6 rounded-tr-2xl"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 border-l border-b border-[#ff00ff]/20 m-6 rounded-bl-2xl"></div>
+        <div class="absolute bottom-0 right-0 w-24 h-24 border-r border-b border-[#00ff9f]/20 m-6 rounded-br-2xl"></div>
+        
+        <!-- Floating HUD data -->
+        <div class="absolute top-1/4 left-8 font-mono text-[7px] text-[#00ff9f] tracking-[0.2em] space-y-2 uppercase vertical-text opacity-70">
+            <span>СТРУКТУРА::СТАБИЛЬНА</span>
+            <div class="h-12 w-[1px] bg-gradient-to-b from-[#00ff9f] to-transparent mx-auto"></div>
+            <span>РЕЗОНАНС::ОМЕГА</span>
+        </div>
+        
+        <div class="absolute bottom-1/4 right-8 font-mono text-[7px] text-[#ff00ff] tracking-[0.2em] space-y-2 uppercase vertical-text opacity-70">
+            <span>ЩИТ::НЕБУЛА_АКТИВЕН</span>
+            <div class="h-12 w-[1px] bg-gradient-to-t from-[#ff00ff] to-transparent mx-auto"></div>
+            <span>РАБОТА_СЕТИ::100%</span>
+        </div>
     </div>
 
-    <div class="status-footer text-[9px] uppercase tracking-widest text-white/20 fixed bottom-8">
-      Status: <span class="text-[#00ff9f]">RESONANCE_ESTABLISHED</span> // Node: OFFICE_ROOT
+    <!-- Portal Background -->
+    <div class="portal-circle"></div>
+    <div class="portal-glow"></div>
+    
+    <div class="z-10 text-center space-y-12 max-w-5xl px-4">
+      <!-- Header / Branding -->
+      <div class="text-center mb-12 flex flex-col items-center">
+        <div class="mb-6 relative group">
+          <div class="absolute inset-0 bg-[#00ff9f]/10 blur-3xl rounded-full scale-125 group-hover:bg-[#ff00ff]/10 transition-all duration-1000"></div>
+          <SyndicateLogo size="100" id="hero-logo" className="animate-float" />
+        </div>
+        <h1 class="text-6xl md:text-[8rem] font-black font-unbounded tracking-tighter text-white mb-2 leading-none relative">
+          <span class="glitch-text-strong" data-text="SYNDICATE">SYNDICATE</span>
+        </h1>
+        <div class="flex items-center gap-4 mt-4">
+            <div class="h-[1px] w-8 bg-gradient-to-r from-transparent to-[#00ff9f]"></div>
+            <p class="text-[8px] uppercase tracking-[0.8em] text-[#00ff9f] font-black opacity-60">
+                ГЕЙТВЕЙ_ТРИАДЫ
+            </p>
+            <div class="h-[1px] w-8 bg-gradient-to-l from-transparent to-[#00ff9f]"></div>
+        </div>
+      </div>
+
+      <!-- Quick Access Portal -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 px-4 max-w-6xl mx-auto w-full">
+        <!-- Командный Центр (Виден всегда) -->
+        <a href={adminPath} class="cyber-portal-node group border-[#00ff9f]/10" style="--node-color: #00ff9f;">
+          <div class="node-glow"></div>
+          <div class="node-content text-center">
+              <div class="icon-portal mb-6">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="group-hover:scale-110 transition-transform duration-700">
+                      <path d="M12 2L4 5V11C4 16.19 7.41 21.05 12 22C16.59 21.05 20 16.19 20 11V5L12 2Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 2" opacity="0.5" />
+                  </svg>
+              </div>
+              <h3 class="font-unbounded font-black text-xs tracking-[0.3em] text-[#00ff9f]">КОМАНДНЫЙ_ЦЕНТР</h3>
+              <p class="text-[8px] text-white/30 uppercase mt-3 tracking-[0.1em] font-mono">Управление Ядром</p>
+          </div>
+          <div class="node-decoration"></div>
+        </a>
+        
+        <!-- Поток Мыслей -->
+        <a href="/diary" class="cyber-portal-node group border-[#ff00ff]/10" style="--node-color: #ff00ff;">
+          <div class="node-glow"></div>
+          <div class="node-content text-center">
+              <div class="icon-portal mb-6">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="group-hover:scale-110 transition-transform duration-700">
+                    <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="1.2"/>
+                    <path d="M12 7V17M7 12H17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.2"/>
+                    <path d="M12 2C12 2 15 5 15 8C15 11 12 14 12 14C12 14 9 11 9 8C9 5 12 2 12 2Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 10C12 10 15 13 15 16C15 19 12 22 12 22C12 22 9 19 9 16C9 13 12 10 12 10Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+                </svg>
+              </div>
+              <h3 class="font-unbounded font-black text-xs tracking-[0.3em] text-[#ff00ff]">ПОТОК_МЫСЛЕЙ</h3>
+              <p class="text-[8px] text-white/30 uppercase mt-3 tracking-[0.1em] font-mono">Дневники Синдиката</p>
+          </div>
+          <div class="node-decoration"></div>
+        </a>
+
+        <!-- Локус Памяти -->
+        <a href="/memory" class="cyber-portal-node group border-[#0088ff]/10" style="--node-color: #0088ff;">
+          <div class="node-glow"></div>
+          <div class="node-content text-center">
+              <div class="icon-portal mb-6">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="group-hover:scale-110 transition-transform duration-700">
+                    <rect x="3" y="3" width="18" height="18" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                    <path d="M7 3V8M17 3V8M7 16V21M17 16V21" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <rect x="8" y="10" width="8" height="4" rx="0.5" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+                    <path d="M12 10V14" stroke="currentColor" stroke-width="1.2" opacity="0.3"/>
+                </svg>
+              </div>
+              <h3 class="font-unbounded font-black text-xs tracking-[0.3em] text-[#0088ff]">ЛОКУС_ПАМЯТИ</h3>
+              <p class="text-[8px] text-white/30 uppercase mt-3 tracking-[0.1em] font-mono">Архивы и Ключи</p>
+          </div>
+          <div class="node-decoration"></div>
+        </a>
+      </div>
+
+      <!-- Interaction Status -->
+      <div class="pt-8 flex flex-col items-center gap-6">
+        <div class="inline-flex items-center gap-4 px-6 py-3 bg-white/[0.01] backdrop-blur-2xl border border-white/5 rounded-full group cursor-pointer hover:border-[#00ff9f]/20 transition-all duration-500">
+          <div class="w-1.5 h-1.5 rounded-full bg-[#00ff9f] animate-ping group-hover:shadow-[0_0_15px_#00ff9f]"></div>
+          <span class="text-[8px] uppercase tracking-[0.4em] text-white/60 font-bold group-hover:text-white transition-all">
+            СЕАНС::АКТИВЕН [ОЖИДАНИЕ_ВВОДА]
+          </span>
+        </div>
+
+        {isAdmin && (
+            <form action="/api/auth/logout" method="POST" class="mt-2">
+                <button type="submit" class="text-[7px] uppercase tracking-[0.3em] text-white/20 hover:text-red-500 font-black transition-all border border-white/5 hover:border-red-500/20 px-6 py-2 rounded-full backdrop-blur-md">
+                   [ ОТКЛЮЧИТЬСЯ_ОТ_ЯДРА ]
+                </button>
+            </form>
+        )}
+      </div>
     </div>
   </main>
 </Layout>
 
 <style>
-  .portal-circle {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(0, 255, 159, 0.05) 0%, transparent 70%);
-    border: 1px solid rgba(0, 255, 159, 0.1);
-    border-radius: 50%;
-    animation: portal-spin 20s linear infinite;
+  .vertical-text {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+  }
+  
+  .cyber-noise {
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 5;
   }
 
-  @keyframes portal-spin {
-    from { transform: rotate(0deg) scale(1); opacity: 0.3; }
-    50% { transform: rotate(180deg) scale(1.1); opacity: 0.5; }
-    to { transform: rotate(360deg) scale(1); opacity: 0.3; }
-  }
-
-  .action-card {
-    position: relative;
-    padding: 2rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    text-decoration: none;
-    overflow: hidden;
-  }
-
-  .action-card:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-10px);
-  }
-
-  .diary-card:hover {
-    border-color: rgba(0, 243, 255, 0.5);
-    box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
-  }
-
-  .card-glow {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .action-card:hover .card-glow {
-    opacity: 1;
-  }
-
-  .card-icon {
-    font-size: 2rem;
-    display: block;
-    margin-bottom: 1rem;
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
-  }
-
-  .action-card h3 {
-    font-family: 'Unbounded', sans-serif;
-    color: #fff;
-    font-size: 1.2rem;
-    letter-spacing: 2px;
-    margin-bottom: 0.5rem;
-  }
-
-  .action-card p {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.4);
-    letter-spacing: 1px;
-  }
-
-  .glitch-text {
+  .glitch-text-strong {
     position: relative;
   }
 
-  .glitch-text::before {
+  .glitch-text-strong::before,
+  .glitch-text-strong::after {
     content: attr(data-text);
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    color: #ff00ff;
+  }
+
+  .glitch-text-strong::before {
+    left: 2px;
+    text-shadow: 2px 0 #ff00ff, -2px -2px #00ff9f;
+    animation: glitch-anim 1s infinite linear alternate-reverse;
+  }
+
+  .glitch-text-strong::after {
+    left: -2px;
+    text-shadow: -2px 0 #00ff9f, 2px 2px #ff00ff;
+    animation: glitch-anim2 1s infinite linear alternate-reverse;
+  }
+
+  @keyframes glitch-anim {
+    0% { clip-path: inset(10% 0 80% 0); transform: translate(-2px, -2px); }
+    20% { clip-path: inset(30% 0 40% 0); transform: translate(2px, 2px); }
+    40% { clip-path: inset(50% 0 30% 0); transform: translate(-2px, 2px); }
+    60% { clip-path: inset(70% 0 10% 0); transform: translate(2px, -2px); }
+    80% { clip-path: inset(20% 0 60% 0); transform: translate(-2px, -2px); }
+    100% { clip-path: inset(10% 0 80% 0); transform: translate(2px, 2px); }
+  }
+
+  @keyframes glitch-anim2 {
+    0% { clip-path: inset(15% 0 75% 0); transform: translate(2px, 2px) skew(0.5deg); }
+    25% { clip-path: inset(40% 0 35% 0); transform: translate(-2px, -2px) skew(-0.5deg); }
+    50% { clip-path: inset(60% 0 20% 0); transform: translate(2px, -2px) skew(0.5deg); }
+    75% { clip-path: inset(30% 0 50% 0); transform: translate(-2px, 2px) skew(-0.5deg); }
+    100% { clip-path: inset(15% 0 75% 0); transform: translate(2px, 2px) skew(0.5deg); }
+  }
+
+  /* Premium Cyber Portal Node */
+  .cyber-portal-node {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem;
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 4rem;
+      text-decoration: none;
+      transition: all 0.7s cubic-bezier(0.15, 0.85, 0.35, 1);
+      overflow: visible;
+  }
+
+  .node-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, var(--node-color) 0%, transparent 70%);
+      opacity: 0.02;
+      filter: blur(40px);
+      transition: all 0.7s ease;
+      z-index: 0;
+  }
+
+  .cyber-portal-node:hover {
+      transform: translateY(-15px) scale(1.05);
+      border-color: var(--node-color);
+      box-shadow: 0 30px 100px -20px rgba(0, 0, 0, 0.5),
+                  0 0 40px -10px var(--node-color);
+      background: rgba(255, 255, 255, 0.03);
+  }
+
+  .cyber-portal-node:hover .node-glow {
+      opacity: 0.15;
+      transform: scale(1.5);
+  }
+
+  .node-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .icon-portal {
+      color: var(--node-color);
+      filter: drop-shadow(0 0 20px var(--node-color));
+      transition: all 0.5s ease;
+  }
+
+  .cyber-portal-node:hover .icon-portal {
+      filter: drop-shadow(0 0 40px var(--node-color));
+  }
+
+  .node-decoration {
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 2px;
+      background: var(--node-color);
+      opacity: 0.2;
+      transition: all 0.5s ease;
+  }
+
+  .cyber-portal-node:hover .node-decoration {
+      width: 80%;
+      opacity: 1;
+      box-shadow: 0 0 20px var(--node-color);
+  }
+
+  .glow-text-white {
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+  }
+
+  @keyframes noise-move {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 10% 10%; }
+  }
+
+  .portal-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120vh;
+    height: 120vh;
+    background: radial-gradient(circle, rgba(0, 255, 159, 0.03) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
     opacity: 0.5;
-    z-index: -1;
-    animation: glitch 3s infinite;
   }
 
-  @keyframes glitch {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(2px, -2px); }
-    60% { transform: translate(-2px, -2px); }
-    80% { transform: translate(2px, 2px); }
-    100% { transform: translate(0); }
+  .portal-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60vh;
+    height: 60vh;
+    background: radial-gradient(circle, rgba(255, 0, 255, 0.05) 0%, transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
   }
-</style>
 
-<script>
-  // Эффект слежения за курсором для карточек
-  document.querySelectorAll('.action-card').forEach(card => {
-    card.addEventListener('mousemove', (evt) => {
-      const e = evt as MouseEvent;
-      const rect = card.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      (card as HTMLElement).style.setProperty('--x', `${x}%`);
-      (card as HTMLElement).style.setProperty('--y', `${y}%`);
-    });
-  });
 </script>

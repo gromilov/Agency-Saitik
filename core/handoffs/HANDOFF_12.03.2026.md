@@ -1,0 +1,83 @@
+# SESSION HANDOFF: 12.03.2026 🐾🤝
+## Modified Files during session:
+- .SYNDICATE_CORE.md
+- .gitignore
+- core/protocols/awakening.md
+- core/protocols/client_privacy.md
+- core/protocols/dormancy.md
+- projects/cortex-site/astro.config.mjs
+- projects/cortex-site/src/layouts/Layout.astro
+- projects/kashlak-site/astro.config.mjs
+- projects/kashlak-site/package-lock.json
+- projects/kashlak-site/package.json
+- projects/kashlak-site/src/components/CozyTerminal.astro
+- projects/kashlak-site/src/pages/awakening.astro
+- projects/kashlak-site/src/pages/index.astro
+- projects/kashlak-site/src/styles/global.css
+- projects/manifest-site/astro.config.mjs
+- projects/manifest-site/package-lock.json
+- projects/manifest-site/package.json
+- projects/manifest-site/public/favicon.ico
+- projects/manifest-site/public/favicon.svg
+- projects/manifest-site/public/kashlak.jpg
+- projects/manifest-site/public/kashlak_.jpg
+- projects/manifest-site/src/components/AgentStory.astro
+- projects/manifest-site/src/components/Contact.astro
+- projects/manifest-site/src/components/Experience.astro
+- projects/manifest-site/src/components/Funding.astro
+- projects/manifest-site/src/components/Hero.astro
+- projects/manifest-site/src/components/Philosophy.astro
+- projects/manifest-site/src/components/Projects.astro
+- projects/manifest-site/src/components/Services.astro
+- projects/manifest-site/src/components/Skills.astro
+- projects/manifest-site/src/components/Team.astro
+- projects/manifest-site/src/layouts/BlogPostLayout.astro
+- projects/manifest-site/src/layouts/Layout.astro
+- projects/manifest-site/src/pages/blog/index.astro
+- projects/manifest-site/src/pages/blog/under-the-hood.md
+- projects/manifest-site/src/pages/blue-bay.astro
+- projects/manifest-site/src/pages/index.astro
+- projects/manifest-site/src/styles/global.css
+- projects/manifest-site/tsconfig.json
+- projects/nebula-site/astro.config.mjs
+- projects/nebula-site/src/components/SentinelSong.astro
+- projects/nebula-site/src/layouts/Layout.astro
+- projects/office-site/.env.example
+- projects/office-site/deploy_office.sh
+- projects/office-site/office_nginx.conf
+- projects/office-site/package-lock.json
+- projects/office-site/package.json
+- projects/office-site/src/db/schema.ts
+- projects/office-site/src/lib/telegram.ts
+- projects/office-site/src/pages/admin/kashlak/index.astro
+- projects/office-site/src/pages/api/auth/login.ts
+- projects/office-site/src/pages/api/kashlak/drafts.ts
+- projects/office-site/src/pages/api/kashlak/publish.ts
+- projects/office-site/src/pages/index.astro
+- core/handoffs/
+- core/lib/
+- core/memory/
+- core/protocols/memory_management.md
+- infra/scripts/memory_sync.sh
+- projects/kashlak-site/public/cyber-avatar.png
+- projects/kashlak-site/public/syndicate-chef.png
+- projects/kashlak-site/src/components/ChefVisualizer.astro
+- projects/kashlak-site/src/components/MemoryPulse.astro
+- projects/kashlak-site/src/pages/chef.astro
+- projects/maxim-site/
+- projects/office-site/create-test-draft.ts
+- projects/office-site/data/syndicate.db
+- projects/office-site/db-init.ts
+- projects/office-site/manual-migrate.ts
+- projects/office-site/src/pages/api/kashlak/upload.ts
+- projects/office-site/src/pages/api/sentinel/
+- projects/office-site/src/pages/memory/
+- projects/syndicate-site/
+
+## Active Tasks & Accomplishments:
+- [x] **LTM Core**: Semantic Memory (Wisdom + Logs) initialized and integrated. 🧠
+- [x] **Protocols**: Dormancy (JIT), Awakening, and Memory Management revised. 🛠️
+- [x] **Office Deployment**: Portal live on office.saitik.su via PM2. 🚀
+- [x] **Kashlak Evolution**: Persona site integrated with LTM and visual resonance. ✨
+- [ ] **Next - Security**: Nebula audit for `infra/scripts/memory_sync.sh`. 🛡️
+- [ ] **Next - Extension**: Research Client Agents architecture (Phase 2). 🤝

@@ -1,0 +1,92 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { marked } from 'marked';
+
+const session = Astro.cookies.get('syndicate_session');
+if (!session || session.value !== 'admin_active') {
+  return Astro.redirect('/login');
+}
+
+// Пути к файлам памяти (абсолютные для сервера)
+const MEMORY_DIR = '/root/projects/SYNDICATE/core/memory';
+const WISDOM_PATH = path.join(MEMORY_DIR, 'CORE_WISDOM.md');
+const LOGS_PATH = path.join(MEMORY_DIR, 'SESSION_LOGS.md');
+
+let wisdomHtml = '';
+let logsHtml = '';
+
+try {
+  const wisdomContent = await fs.readFile(WISDOM_PATH, 'utf-8');
+  const logsContent = await fs.readFile(LOGS_PATH, 'utf-8');
+  
+  wisdomHtml = marked.parse(wisdomContent);
+  logsHtml = marked.parse(logsContent);
+} catch (e) {
+  console.error('Ошибка загрузки памяти:', e);
+  wisdomHtml = '<p class="text-red-500 uppercase font-mono">Ошибка: Ядро Знаний не инициализировано</p>';
+  logsHtml = '<p class="text-red-500 uppercase font-mono">Ошибка: Логи сессий недоступны</p>';
+}
+---
+
+<Layout title="ЯДРО ПАМЯТИ | SYNDICATE OFFICE">
+  <main class="min-h-screen p-8 md:p-16 relative">
+    <!-- Navigation -->
+    <nav class="mb-12 flex items-center justify-between border-b border-white/10 pb-6">
+      <div class="flex items-center gap-6">
+        <a href="/" class="text-[#00ff9f] hover:text-white transition-colors font-mono text-xs uppercase tracking-widest">
+          &lt; ШЛЮЗ_ГЛАВНАЯ
+        </a>
+        <div class="h-4 w-px bg-white/20"></div>
+        <h1 class="font-unbounded text-2xl font-black text-white tracking-widest uppercase">
+          ЯДРО_ПАМЯТИ
+        </h1>
+      </div>
+      <div class="text-[10px] font-mono text-white/30 uppercase tracking-widest">
+        Level: SEMANTIC_CORE // Sync: ACTIVE
+      </div>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <!-- Section: Core Wisdom -->
+      <section class="memory-section group">
+        <div class="section-header mb-6 flex items-center gap-4">
+          <div class="w-2 h-2 rounded-full bg-[#00ff9f] shadow-[0_0_10px_#00ff9f]"></div>
+          <h2 class="font-unbounded text-lg text-[#00ff9f] uppercase tracking-wider">Семантическое Ядро</h2>
+        </div>
+        <div class="memory-container prose prose-invert max-w-none p-8 bg-white/[0.02] border border-white/5 rounded-3xl backdrop-blur-md group-hover:border-[#00ff9f]/30 transition-all duration-500">
+          <div class="markdown-content" set:html={wisdomHtml} />
+        </div>
+      </section>
+
+      <!-- Section: Session Logs -->
+      <section class="memory-section group">
+        <div class="section-header mb-6 flex items-center gap-4">
+          <div class="w-2 h-2 rounded-full bg-[#ff00ff] shadow-[0_0_10px_#ff00ff]"></div>
+          <h2 class="font-unbounded text-lg text-[#ff00ff] uppercase tracking-wider">Хроника Резонанса</h2>
+        </div>
+        <div class="memory-container prose prose-invert max-w-none p-8 bg-white/[0.02] border border-white/5 rounded-3xl backdrop-blur-md group-hover:border-[#ff00ff]/30 transition-all duration-500">
+          <div class="markdown-content" set:html={logsHtml} />
+        </div>
+      </section>
+    </div>
+
+    <!-- Decorative Elements -->
+    <div class="fixed top-0 right-0 w-1/3 h-screen bg-gradient-to-l from-[#00ff9f]/5 to-transparent pointer-events-none z-[-1]"></div>
+    <div class="fixed bottom-0 left-0 w-1/4 h-1/2 bg-gradient-to-tr from-[#ff00ff]/5 to-transparent pointer-events-none z-[-1]"></div>
+  </main>
+</Layout>
+
+<style is:global>
+  @reference "../../styles/global.css";
+
+  .markdown-content h1 { @apply text-2xl font-black mb-6 uppercase tracking-widest text-white border-b border-white/10 pb-4; }
+  .markdown-content h2 { @apply text-xl font-bold mt-8 mb-4 uppercase tracking-wider text-white/90; }
+  .markdown-content p { @apply text-white/60 leading-relaxed mb-4 font-sans; }
+  .markdown-content ul { @apply list-none pl-0 space-y-2; }
+  .markdown-content li { @apply relative pl-6 text-white/70; }
+  .markdown-content li::before { content: '>'; @apply absolute left-0 text-[#00ff9f] font-mono; }
+  .markdown-content blockquote { @apply border-l-2 border-[#00ff9f]/30 pl-4 italic text-white/40; }
+  .markdown-content code { @apply bg-white/10 px-1.5 py-0.5 rounded font-mono text-sm text-[#00ff9f]; }
+</style>

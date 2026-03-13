@@ -1,0 +1,39 @@
+---
+---
+<div class="memory-pulse-container">
+  <div class="pulse-ring ring-1"></div>
+  <div class="pulse-ring ring-2"></div>
+  <div class="pulse-ring ring-3"></div>
+  <div class="core-dot"></div>
+</div>
+
+<style>
+  @reference "../styles/global.css";
+  .memory-pulse-container {
+    @apply relative w-12 h-12 flex items-center justify-center;
+  }
+
+  .pulse-ring {
+    @apply absolute rounded-full border border-cyber-cyan/30;
+    animation: pulse-expand 3s infinite ease-out;
+  }
+
+  .ring-1 { animation-delay: 0s; }
+  .ring-2 { animation-delay: 1s; }
+  .ring-3 { animation-delay: 2s; }
+
+  .core-dot {
+    @apply w-2 h-2 rounded-full bg-cyber-cyan shadow-[0_0_15px_#00f3ff];
+    animation: core-flicker 2s infinite alternate ease-in-out;
+  }
+
+  @keyframes pulse-expand {
+    0% { width: 0; height: 0; opacity: 1; }
+    100% { width: 100%; height: 100%; opacity: 0; }
+  }
+
+  @keyframes core-flicker {
+    0% { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(1.2); opacity: 1; }
+  }
+</style>

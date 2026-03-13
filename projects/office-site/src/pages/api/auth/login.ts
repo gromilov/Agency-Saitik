@@ -7,12 +7,21 @@ export const POST: APIRoute = async ({ request, url }) => {
   const phone = formData.get('phone');
   
   const adminId = import.meta.env.ADMIN_TELEGRAM_ID;
-  const siteUrl = url.origin; // Динамически получаем URL сайта
+  const adminPhone = import.meta.env.ADMIN_PHONE;
+  const siteUrl = import.meta.env.SITE_URL || 'https://office.saitik.su';
   
   console.log(`[AUTH] Попытка входа для: ${phone}`);
 
-  // 1. Простая проверка (здесь можно добавить сверку с базой данных)
-  // Для начала просто генерируем ссылку если запрос пришел
+  // 1. Проверка «белого списка»
+  if (phone !== adminPhone) {
+    console.warn(`[AUTH] Отказано в доступе: номер ${phone} не в белом списке.`);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      message: "КЛЮЧ ИДЕНТИФИКАЦИИ НЕ ВАЛИДЕН. ДОСТУП ЗАБЛОКИРОВАН." 
+    }), { status: 403 });
+  }
+
+  // 2. Генерируем токен, если номер совпал
   const token = generateMagicToken();
   
   // 2. В будущем мы сохраним этот токен в БД или Redis с TTL
@@ -28,7 +37,7 @@ export const POST: APIRoute = async ({ request, url }) => {
     message += `Если это вы — нажмите на кнопку подтверждения ниже:`;
   }
   
-  const sent = await sendTelegramMessage(message, isLocal ? undefined : {
+  const sent = await sendTelegramMessage(message, {
     text: "🚀 ПОДТВЕРДИТЬ ВХОД",
     url: magicLink
   });

@@ -3,6 +3,11 @@ import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import NeuralNode from '../../components/diary/NeuralNode.astro';
 
+const session = Astro.cookies.get('syndicate_session');
+if (!session || session.value !== 'admin_active') {
+  return Astro.redirect('/login');
+}
+
 const diaryEntries = await getCollection('diary');
 const sortedEntries = diaryEntries.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 

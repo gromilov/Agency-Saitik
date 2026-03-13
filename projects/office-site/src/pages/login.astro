@@ -2,6 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import CyberButton from '../components/ui/CyberButton.astro';
 import CyberInput from '../components/ui/CyberInput.astro';
+
+const session = Astro.cookies.get('syndicate_session');
+if (session && session.value === 'admin_active') {
+  return Astro.redirect('/admin');
+}
 ---
 
 <Layout title="Syndicate Office | Вход в систему">
@@ -19,18 +24,35 @@ import CyberInput from '../components/ui/CyberInput.astro';
         <p class="text-[9px] uppercase tracking-[0.4em] text-white/40 mt-3 font-bold">Шлюз Синдиката v2.4_RUS</p>
       </div>
       
-      <form action="/api/auth/login" method="POST" class="space-y-8">
+      <form id="login-form" class="space-y-8">
+        <div id="auth-status" class="hidden text-[10px] uppercase tracking-[0.2em] font-mono text-center p-4 rounded-xl border mb-6 animate-pulse"></div>
+
         <CyberInput 
+          id="phone-input"
           label="Протокол доступа / Ключ идентификации" 
           name="phone" 
           required 
           placeholder="+7 [__] ___ ____"
         />
         
-        <CyberButton type="submit">
-          Запустить авторизацию
-        </CyberButton>
+        <div id="button-container">
+            <CyberButton id="submit-btn" type="submit">
+                Запустить авторизацию
+            </CyberButton>
+        </div>
       </form>
+      
+      <div id="success-view" class="hidden flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-700">
+          <div class="w-20 h-20 rounded-full border-4 border-[#00ff9f] flex items-center justify-center text-4xl shadow-[0_0_30px_#00ff9f]">
+            ✅
+          </div>
+          <p class="text-[11px] uppercase tracking-[0.3em] text-[#00ff9f] font-black text-center leading-relaxed">
+            Доступ инициирован.<br/>Подтверди вход в Telegram.
+          </p>
+          <div class="w-full h-1 bg-white/5 overflow-hidden rounded-full">
+            <div class="h-full bg-[#00ff9f] animate-[loading_2s_linear]"></div>
+          </div>
+      </div>
       
       <div class="mt-12 flex flex-col items-center gap-4">
         <div class="flex gap-2">
@@ -49,12 +71,138 @@ import CyberInput from '../components/ui/CyberInput.astro';
   </main>
 </Layout>
 
+<script>
+    const form = document.getElementById('login-form') as HTMLFormElement;
+    const loginCard = form?.closest('.glass');
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+    const statusBox = document.getElementById('auth-status');
+    const successView = document.getElementById('success-view');
+
+    form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const phone = formData.get('phone');
+        
+        if (!phone) return;
+
+        // Сброс состояний
+        loginCard?.classList.remove('error-state');
+        statusBox?.classList.add('hidden');
+
+        // Состояние загрузки
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'СКАНИРОВАНИЕ...';
+        statusBox?.classList.remove('hidden', 'border-red-500/30', 'text-red-500');
+        statusBox?.classList.add('border-[#00ff9f]/30', 'text-[#00ff9f]');
+        if (statusBox) statusBox.innerText = 'ПРОВЕРКА В ПУТИ...';
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Успех
+                form.classList.add('hidden');
+                successView?.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    window.location.href = 'https://t.me/kashlak_bot';
+                }, 1500);
+            } else {
+                // Ошибка API
+                throw new Error(data.message || 'Сбой идентификации');
+            }
+        } catch (err) {
+            // Сбой: Агрессивный визуал
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'ЗАПУСТИТЬ АВТОРИЗАЦИЮ';
+            
+            loginCard?.classList.add('error-state');
+            statusBox?.classList.remove('border-[#00ff9f]/30', 'text-[#00ff9f]');
+            statusBox?.classList.add('border-red-500/40', 'text-red-500', 'bg-red-500/10', 'animate-glitch-fast');
+            statusBox?.classList.remove('hidden');
+            
+            if (statusBox) {
+                statusBox.innerText = `[ACCESS_DENIED] // ${(err as Error).message}`;
+                statusBox.classList.add('animate-shake');
+            }
+            
+            // Краткосрочный эффект помех на всей карточке
+            setTimeout(() => {
+                statusBox?.classList.remove('animate-shake');
+            }, 500);
+        }
+    });
+</script>
+
 <style>
+    @keyframes loading {
+        from { width: 0; }
+        to { width: 100%; }
+    }
+
+    .error-state {
+        border-color: rgba(255, 0, 60, 0.4) !important;
+        box-shadow: 0 0 50px rgba(255, 0, 60, 0.2) !important;
+        animation: card-shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    .error-state::before {
+        content: 'ВНИМАНИЕ: СБОЙ ИДЕНТИФИКАЦИИ';
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 8px;
+        color: #ff003c;
+        font-family: monospace;
+        letter-spacing: 2px;
+        z-index: 20;
+        animation: glitch-fast 0.2s infinite;
+    }
+
+    @keyframes card-shake {
+        0% { transform: translate(0,0); }
+        10% { transform: translate(-5px,-2px); }
+        20% { transform: translate(5px,2px); }
+        30% { transform: translate(-5px,2px); }
+        40% { transform: translate(5px,-2px); }
+        50% { transform: translate(-2px,2px); }
+        100% { transform: translate(0,0); }
+    }
+
+    .animate-shake {
+        animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    .animate-glitch-fast {
+        animation: glitch-fast 0.1s infinite;
+    }
+
+    @keyframes glitch-fast {
+        0% { transform: translate(0); opacity: 1; }
+        20% { transform: translate(-3px, 1px); opacity: 0.8; }
+        40% { transform: translate(3px, -1px); opacity: 1; }
+        60% { transform: translate(-1px, -2px); opacity: 0.9; }
+        80% { transform: translate(2px, 2px); opacity: 1; }
+        100% { transform: translate(0); }
+    }
+
+    @keyframes shake {
+        10%, 90% { transform: translate3d(-1px, 0, 0); }
+        20%, 80% { transform: translate3d(2px, 0, 0); }
+        30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+        40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
     .glitch-effect {
         position: relative;
     }
     
-    .glitch-effect:hover::before {
+    .glitch-effect:hover::before, .error-state .glitch-effect::before {
         content: attr(data-text);
         position: absolute;
         left: -2px;
@@ -64,6 +212,11 @@ import CyberInput from '../components/ui/CyberInput.astro';
         overflow: hidden;
         clip: rect(0, 900px, 0, 0);
         animation: glitch-anim 2s infinite linear alternate-reverse;
+    }
+
+    .error-state .glitch-effect {
+        color: #ff003c !important;
+        text-shadow: 0 0 20px #ff003c !important;
     }
 
     @keyframes glitch-anim {

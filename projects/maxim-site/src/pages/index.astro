@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Skills from '../components/Skills.astro';
+import Experience from '../components/Experience.astro';
+import Contact from '../components/Contact.astro';
+import { resumeData } from '../data/resumeData';
+
+const rndColorClasses = {
+  magenta: 'hover:border-cyber-magenta/50 text-cyber-magenta',
+  cyan: 'hover:border-cyber-cyan/50 text-cyber-cyan',
+  yellow: 'hover:border-cyber-yellow/50 text-cyber-yellow',
+  green: 'hover:border-cyber-green/50 text-cyber-green'
+};
+
+const rndColors = ['magenta', 'cyan', 'yellow'] as const;
+---
+
+<Layout title={`${resumeData.name} | ${resumeData.role}`}>
+  <div class="flex flex-col gap-16">
+    <Hero />
+    <Experience />
+    <Skills />
+    
+    <!-- R&D Section -->
+    <section id="rnd" class="mb-16 scroll-mt-20">
+      <h3 class="text-3xl font-bold mb-10 flex items-center gap-4 text-white">
+        Исследования и разработки (R&D)
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {resumeData.rnd.map((project, index) => {
+          const color = rndColors[index % rndColors.length];
+          const colorClass = rndColorClasses[color];
+          return (
+            <div class="p-8 border border-white/10 bg-white/[0.02] rounded-3xl group transition-all hover:border-opacity-50" style={`border-color: var(--color-cyber-${color})`}>
+              <div class={`text-cyber-${color} font-mono text-xs mb-4 tracking-widest uppercase`}>{project.status}</div>
+              <h4 class="text-xl font-bold text-white mb-4">{project.title}</h4>
+              <p class="text-cyber-muted text-sm leading-relaxed">{project.description}</p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+
+    <Contact />
+    
+    <footer class="mt-8 border-t border-white/10 pt-8 text-center text-cyber-muted font-mono text-sm relative">
+       <p>© {new Date().getFullYear()} {resumeData.name}. Все права защищены.</p>
+    </footer>
+  </div>
+</Layout>

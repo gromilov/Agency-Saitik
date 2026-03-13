@@ -29,7 +29,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const targetChannel = channelOverride || '@iamkashlak';
     const targetImage = imageUrlOverride || draft.imageUrl;
 
-    const jumpResult = await sendTelegramMessage(draft.content, undefined, targetChannel, targetImage || undefined, draft.audioUrl || undefined);
+    const jumpResult = await sendTelegramMessage(
+        draft.content, 
+        undefined, 
+        targetChannel, 
+        targetImage || undefined, 
+        draft.audioUrl || undefined,
+        draft.imageName || undefined,
+        draft.audioName || undefined
+    );
     
     if (jumpResult.success) {
       // 3. Update Status and save Message ID

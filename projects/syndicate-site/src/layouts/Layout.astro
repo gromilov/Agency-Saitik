@@ -1,0 +1,43 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="SYNDICATE — Автономные ИИ-агенты и архитектура будущего. Симбиоз человеческого опыта и искусственного интеллекта." />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+		<meta name="generator" content={Astro.generator} />
+		<title>{title} | SYNDICATE</title>
+	</head>
+	<body class="min-h-screen selection:bg-cyber-yellow selection:text-black">
+		<!-- Background Emitters -->
+		<div class="fixed inset-0 pointer-events-none z-[-2] bg-cyber-bg"></div>
+		<div class="fixed inset-0 pointer-events-none z-[-1] opacity-30 bg-[radial-gradient(circle_at_20%_30%,_var(--color-cyber-cyan)_0%,_transparent_40%),_radial-gradient(circle_at_80%_70%,_var(--color-cyber-magenta)_0%,_transparent_40%)]"></div>
+		
+		<!-- Scanline & Noise Overlay -->
+		<div class="fixed inset-0 pointer-events-none z-50 opacity-[0.05] mix-blend-overlay pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+		<div class="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_4px,3px_100%] pointer-events-none"></div>
+		
+		<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10 min-h-screen">
+			<slot />
+		</main>
+
+		<script>
+			// Инициализация системы мониторинга Синдиката
+			import { initSentinel } from "../../../../core/lib/sentinel";
+			initSentinel("syndicate.saitik.su");
+		</script>
+	</body>
+</html>

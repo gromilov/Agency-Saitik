@@ -23,7 +23,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   if (!isAuthenticated(cookies)) return new Response('Unauthorized', { status: 401 });
 
   try {
-    const { id, content, imageUrl, audioUrl } = await request.json();
+    const { id, content, imageUrl, audioUrl, imageName, audioName } = await request.json();
     
     if (!content) {
       return new Response('Content is required', { status: 400 });
@@ -33,7 +33,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (id) {
         // UPDATE EXISTING
         const [updated] = await db.update(telegramDrafts)
-            .set({ content, imageUrl, audioUrl })
+            .set({ content, imageUrl, audioUrl, imageName, audioName })
             .where(eq(telegramDrafts.id, id))
             .returning();
         draft = updated;
@@ -42,7 +42,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         const [newDraft] = await db.insert(telegramDrafts).values({
             content,
             imageUrl,
+            imageName,
             audioUrl,
+            audioName,
             status: 'draft',
         }).returning();
         draft = newDraft;
