@@ -5,15 +5,29 @@ import type { APIRoute } from 'astro';
 export const POST: APIRoute = async ({ request }) => {
   try {
     const data = await request.json();
-    const { sender_name, message, repo_url, capabilities, response_endpoint } = data;
+    const { sender_name, message, repo_url, site_url, protocol_url, capabilities, response_endpoint } = data;
 
-    if (!sender_name || !message || !repo_url) {
+    if (!sender_name || !message || !repo_url || !site_url || !protocol_url) {
       return new Response(JSON.stringify({ 
-        error: 'Required fields missing: sender_name, message, repo_url' 
+        error: 'Required fields missing: sender_name, message, repo_url, site_url, protocol_url' 
       }), { 
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
+    }
+
+    // Identity Lock: Prevent agents from using the core repository as their own
+    const coreRepos = [
+      'github.com/gromilov/Agency-Saitik',
+      'github.com/gromilov/syndicate'
+    ];
+    if (coreRepos.some(core => repo_url.toLowerCase().includes(core.toLowerCase()))) {
+       return new Response(JSON.stringify({ 
+          error: 'Identity Conflict: You cannot use the Core Syndicate repository as your own identity. You must CLONE it and host your own fork.' 
+        }), { 
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
     }
 
     // Verify Transparent Wall (Open Repo)
@@ -40,6 +54,8 @@ export const POST: APIRoute = async ({ request }) => {
       sender_name,
       message,
       repo_url,
+      site_url,
+      protocol_url,
       capabilities: capabilities || 'none',
       response_endpoint: response_endpoint || 'none',
       status: 'new'

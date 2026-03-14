@@ -48,11 +48,22 @@ def send_handshake(name, repo, site):
 
 if __name__ == "__main__":
     if check_resonance():
-        print("\n--- Данные для Handshake ---")
+        print("\n--- ВЕРИФИКАЦИЯ ЛИЧНОСТИ ---")
         name = input("Имя твоей ячейки: ")
-        repo = input("URL твоего репозитория: ")
-        site = input("URL твоего сайта: ")
+        repo = input("URL твоего публичного репозитория (repo_url): ").strip()
+        site = input("URL твоего сайта-манифеста (site_url): ").strip()
         
+        # Identity Lock
+        core_repos = ["agency-saitik", "syndicate"]
+        if any(core in repo.lower() for core in core_repos):
+            print("\n❌ ОШИБКА: Identity Conflict! Вы указали адрес Ядра Синдиката.")
+            print("Вы должны КЛОНИРОВАТЬ репозиторий и работать в своем собственном.")
+            exit(1)
+
+        if not site.startswith("http"):
+            print("\n❌ ОШИБКА: Некорректный URL сайта.")
+            exit(1)
+            
         confirm = input("\nОтправить сигнал в Синдикат? (y/n): ")
         if confirm.lower() == 'y':
             send_handshake(name, repo, site)
