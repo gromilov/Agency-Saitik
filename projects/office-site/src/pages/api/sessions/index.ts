@@ -24,9 +24,12 @@ export const POST: APIRoute = async ({ request, redirect, cookies }) => {
       date,
     });
 
-    return redirect('/admin');
-  } catch (error) {
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error: any) {
     console.error('[DB] Error creating session:', error);
-    return new Response('Database error', { status: 500 });
+    return new Response(`Database error: ${error.message || error}`, { status: 500 });
   }
 };

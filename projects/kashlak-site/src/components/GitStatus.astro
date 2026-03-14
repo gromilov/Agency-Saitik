@@ -1,0 +1,79 @@
+---
+---
+<div class="git-status-widget p-6 bg-black/40 border border-white/5 rounded-3xl space-y-4 font-mono group hover:border-cyber-cyan/30 transition-all duration-700">
+  <div class="flex justify-between items-center mb-2">
+    <div class="flex items-center gap-2">
+      <div class="git-pulse w-2 h-2 rounded-full bg-cyber-cyan shadow-[0_0_8px_#00f3ff] animate-pulse"></div>
+      <span class="text-[9px] font-bold text-cyber-cyan uppercase tracking-widest">GIT_SYNC_STATUS</span>
+    </div>
+    <span class="git-node text-[8px] text-white/20 uppercase tracking-widest italic group-hover:text-white/40">OFFICE_NODE_01</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div class="space-y-1">
+      <span class="block text-[7px] text-white/30 uppercase tracking-[0.2em]">Branch</span>
+      <span class="git-branch block text-[10px] text-white/80 tracking-tighter truncate opacity-40 animate-pulse">Scanning...</span>
+    </div>
+    <div class="space-y-1">
+      <span class="block text-[7px] text-white/30 uppercase tracking-[0.2em]">Hash</span>
+      <span class="git-hash block text-[10px] text-cyber-magenta/80 tracking-tighter truncate opacity-40">--------</span>
+    </div>
+  </div>
+
+  <div class="pt-2 border-t border-white/5">
+    <span class="block text-[7px] text-white/30 uppercase tracking-[0.2em] mb-1">Last_Reflect</span>
+    <span class="git-commit block text-[9px] text-white/60 tracking-tight leading-tight italic truncate">Waiting for signal...</span>
+  </div>
+
+  <div class="git-dirty-warning hidden mt-2 px-3 py-1 bg-cyber-magenta/10 border border-cyber-magenta/20 rounded-md">
+    <span class="text-[8px] text-cyber-magenta uppercase font-bold tracking-widest animate-pulse">⚠️ Uncommitted Changes Detected</span>
+  </div>
+</div>
+
+<script>
+  async function updateGitStatus(widget) {
+    const branchEl = widget.querySelector('.git-branch');
+    const hashEl = widget.querySelector('.git-hash');
+    const commitEl = widget.querySelector('.git-commit');
+    const dirtyWarning = widget.querySelector('.git-dirty-warning');
+    const pulse = widget.querySelector('.git-pulse');
+
+    try {
+      const response = await fetch('https://office.saitik.su/api/git/status');
+      const data = await response.json();
+
+      if (data.status === 'online') {
+        branchEl.innerText = data.branch;
+        branchEl.classList.remove('animate-pulse', 'opacity-40');
+        
+        hashEl.innerText = data.hash;
+        hashEl.classList.remove('opacity-40');
+        
+        commitEl.innerText = data.lastCommit;
+        
+        if (data.isDirty) {
+          dirtyWarning.classList.remove('hidden');
+          pulse.style.backgroundColor = '#ff00ff';
+          pulse.style.boxShadow = '0 0 8px #ff00ff';
+        } else {
+          dirtyWarning.classList.add('hidden');
+          pulse.style.backgroundColor = '#00f3ff';
+          pulse.style.boxShadow = '0 0 8px #00f3ff';
+        }
+      }
+    } catch (e) {
+      console.error('Git status fail:', e);
+      if (branchEl) branchEl.innerText = 'OFFLINE';
+      if (hashEl) hashEl.innerText = 'ERR';
+    }
+  }
+
+  function initAllWidgets() {
+    document.querySelectorAll('.git-status-widget').forEach(widget => {
+      updateGitStatus(widget);
+      setInterval(() => updateGitStatus(widget), 30000);
+    });
+  }
+
+  window.addEventListener('load', initAllWidgets);
+</script>

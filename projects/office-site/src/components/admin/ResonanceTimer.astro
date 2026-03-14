@@ -8,10 +8,10 @@ const { projects } = Astro.props;
 
 <div id="resonance-timer" class="relative group p-12 overflow-hidden flex flex-col items-center justify-center">
   <!-- Rotating Rings (Awakening Style) -->
-  <div class="absolute inset-0 flex items-center justify-center -z-10">
-    <div class="w-[300px] h-[300px] border border-[#00ff9f]/10 rounded-full animate-[spin_20s_linear_infinite]"></div>
-    <div class="absolute w-[350px] h-[350px] border-2 border-[#ff00ff]/5 border-dashed rounded-full animate-[spin_35s_linear_infinite_reverse]"></div>
-    <div class="absolute w-[250px] h-[250px] border border-[#00f3ff]/10 rounded-full animate-[ping_10s_ease-in-out_infinite]"></div>
+  <div class="absolute inset-0 flex items-center justify-center -z-10 pointer-events-none">
+    <div class="w-[300px] h-[300px] border border-[#00ff9f]/5 rounded-full animate-[spin_40s_linear_infinite] optimize-layers"></div>
+    <div class="absolute w-[350px] h-[350px] border-2 border-[#ff00ff]/5 border-dashed rounded-full animate-[spin_60s_linear_infinite_reverse] optimize-layers"></div>
+    <div class="absolute w-[250px] h-[250px] border border-[#00f3ff]/5 rounded-full opacity-20 optimize-layers"></div>
     <!-- Scanline glow -->
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,255,159,0.05)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
   </div>

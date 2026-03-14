@@ -1,0 +1,445 @@
+---
+---
+
+<div class="hal-container relative group">
+  <canvas 
+    id="hal-canvas" 
+    width="1080" 
+    height="1920" 
+    class="w-full aspect-[9/16] bg-black rounded-3xl shadow-[0_0_50px_rgba(0,0,0,1),0_0_20px_rgba(255,0,0,0.2)] border-4 border-[#1a1a1a] cursor-pointer"
+  ></canvas>
+  
+  <!-- Overlay HUD removed - now drawn on canvas -->
+</div>
+
+<script>
+  class Hal9000 {
+    canvas: HTMLCanvasElement;
+    ctx: CanvasRenderingContext2D;
+    width: number;
+    height: number;
+    audioContext: AudioContext | null = null;
+    analyser: AnalyserNode | null = null;
+    dataArray: Uint8Array | null = null;
+    source: MediaElementAudioSourceNode | null = null;
+    mediaRecorder: MediaRecorder | null = null;
+    recordedChunks: Blob[] = [];
+    isRecording: boolean = false;
+    startTime: number = 0;
+    freqIntensity: number = 0;
+    systemStatus: string = 'ОЖИДАНИЕ';
+    timerDisplay: string = '00:00:00';
+    meters: number[] = new Array(8).fill(0);
+    particles: {x: number, y: number, speed: number, size: number}[] = [];
+    mediaDestination: MediaStreamAudioDestinationNode | null = null;
+
+    themes: any = {
+      magenta: {
+        primary: '#ff00ff',
+        secondary: '#00f3ff',
+        grid: 'rgba(0, 243, 255, 0.03)'
+      },
+      lime: {
+        primary: '#39ff14',
+        secondary: '#00ff9f',
+        grid: 'rgba(57, 255, 20, 0.03)'
+      },
+      amber: {
+        primary: '#ffbf00',
+        secondary: '#ff4500',
+        grid: 'rgba(255, 191, 0, 0.03)'
+      }
+    };
+    currentTheme = this.themes.magenta;
+
+    constructor() {
+      this.canvas = document.getElementById('hal-canvas') as HTMLCanvasElement;
+      this.ctx = this.canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D;
+      this.width = this.canvas.width;
+      this.height = this.canvas.height;
+      this.init();
+    }
+
+    setTheme(name: string) {
+      if (this.themes[name]) {
+        this.currentTheme = this.themes[name];
+        console.log(`KASHLAK_DEBUG::Theme changed to ${name}`);
+      }
+    }
+
+    init() {
+      // Initialize particles
+      for(let i=0; i<50; i++) {
+        this.particles.push({
+            x: Math.random() * this.width,
+            y: Math.random() * this.height,
+            speed: 1 + Math.random() * 3,
+            size: 1 + Math.random() * 2
+        });
+      }
+      this.draw();
+      window.addEventListener('resize', () => this.handleResize());
+    }
+
+    handleResize() {
+        // Handle if needed, but width/height are fixed for recording
+    }
+
+    async setupAudio(audioElement) {
+      if (!this.audioContext) {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.analyser = this.audioContext.createAnalyser();
+        this.analyser.fftSize = 256;
+        const bufferLength = this.analyser.frequencyBinCount;
+        this.dataArray = new Uint8Array(bufferLength);
+        
+        this.source = this.audioContext.createMediaElementSource(audioElement);
+        this.source.connect(this.analyser);
+        this.analyser.connect(this.audioContext.destination);
+        
+        // Connect analyser to a MediaStreamDestination for recording
+        this.mediaDestination = this.audioContext.createMediaStreamDestination();
+        this.analyser.connect(this.mediaDestination);
+      }
+    }
+
+    startRecording() {
+      console.log('KASHLAK_DEBUG::Starting recording...');
+      this.recordedChunks = [];
+      const stream = this.canvas.captureStream(60); // 60 FPS
+      console.log('KASHLAK_DEBUG::Canvas stream captured:', stream.getTracks().length, 'tracks');
+      
+      // Mix in audio from our destination node
+      if (this.mediaDestination) {
+        const audioTracks = this.mediaDestination.stream.getAudioTracks();
+        console.log('KASHLAK_DEBUG::Audio tracks found:', audioTracks.length);
+        if (audioTracks.length > 0) {
+          stream.addTrack(audioTracks[0]);
+        }
+      } else {
+        console.warn('KASHLAK_DEBUG::No mediaDestination found, recording silent video');
+      }
+
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus') 
+        ? 'video/webm;codecs=vp9,opus' 
+        : 'video/webm';
+        
+      console.log('KASHLAK_DEBUG::Using mimeType:', mimeType);
+      
+      try {
+        this.mediaRecorder = new MediaRecorder(stream, { mimeType });
+      } catch (e) {
+        console.error('KASHLAK_DEBUG::Failed to create MediaRecorder:', e);
+        return;
+      }
+
+      this.mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          console.log('KASHLAK_DEBUG::Data available, size:', e.data.size);
+          this.recordedChunks.push(e.data);
+        } else {
+          console.warn('KASHLAK_DEBUG::Empty data chunk received');
+        }
+      };
+
+      this.mediaRecorder.onstop = () => {
+        console.log('KASHLAK_DEBUG::Recorder stopped. Total chunks:', this.recordedChunks.length);
+        if (this.recordedChunks.length === 0) {
+            console.error('KASHLAK_DEBUG::No data recorded! Stopping download.');
+            return;
+        }
+        
+        const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        console.log('KASHLAK_DEBUG::Blob created, size:', blob.size, 'URL:', url);
+        
+        // Auto-download with DOM attachment for better reliability
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `kashlak_story_${Date.now()}.webm`;
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+            document.body.removeChild(a);
+            // window.URL.revokeObjectURL(url); // Don't revoke too early to allow manual download
+        }, 100);
+
+        // Notify parent
+        window.dispatchEvent(new CustomEvent('kashlak-video-ready', { detail: { url } }));
+      };
+
+      this.mediaRecorder.onerror = (e) => {
+        console.error('KASHLAK_DEBUG::MediaRecorder error:', e);
+      };
+
+      this.mediaRecorder.start(1000); // Collect data every 1s to be safe
+      this.isRecording = true;
+      this.startTime = Date.now();
+      this.systemStatus = 'ЗАПИСЬ';
+    }
+
+    stopRecording() {
+      if (this.mediaRecorder && this.isRecording) {
+        this.mediaRecorder.stop();
+        this.isRecording = false;
+        this.systemStatus = 'ОЖИДАНИЕ';
+        console.log('KASHLAK_DEBUG::stopRecording() called');
+      } else {
+        console.warn('KASHLAK_DEBUG::stopRecording() called but not recording or no recorder', { isRecording: this.isRecording, hasRecorder: !!this.mediaRecorder });
+      }
+    }
+
+    updateTimer() {
+        if (!this.isRecording) {
+            this.timerDisplay = '00:00:00';
+            return;
+        }
+        const elapsed = Date.now() - this.startTime;
+        const s = Math.floor(elapsed / 1000) % 60;
+        const m = Math.floor(elapsed / 60000) % 60;
+        const h = Math.floor(elapsed / 3600000);
+        this.timerDisplay = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    draw() {
+      requestAnimationFrame(() => this.draw());
+      
+      if (this.analyser) {
+        this.analyser.getByteFrequencyData(this.dataArray!);
+        // Focus more on low-mid frequencies (voice range) for resonance
+        const voiceRange = this.dataArray!.slice(0, 32); 
+        const avg = voiceRange.reduce((a, b) => a + b, 0) / voiceRange.length;
+        this.freqIntensity = avg;
+        this.updateMeters();
+      }
+      
+      this.updateTimer();
+      
+      const ctx = this.ctx;
+      const w = this.width;
+      const h = this.height;
+      const cx = w / 2;
+      const cy = h / 2;
+
+      // Background
+      ctx.fillStyle = '#030308';
+      ctx.fillRect(0, 0, w, h);
+
+      // Reactive Grid
+      const gridSize = 80;
+      ctx.strokeStyle = this.currentTheme.grid.replace('0.03', (0.03 + (this.freqIntensity * 0.001)).toString());
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let x=0; x<w; x+=gridSize) {
+        ctx.moveTo(x, 0); ctx.lineTo(x, h);
+      }
+      for(let y=0; y<h; y+=gridSize) {
+        ctx.moveTo(0, y); ctx.lineTo(w, y);
+      }
+      ctx.stroke();
+
+      // Floating Particles
+      const pColor = this.currentTheme.primary;
+      ctx.fillStyle = `rgba(${parseInt(pColor.slice(1,3), 16)}, ${parseInt(pColor.slice(3,5), 16)}, ${parseInt(pColor.slice(5,7), 16)}, ${0.1 + (this.freqIntensity * 0.005)})`;
+      this.particles.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          p.y -= p.speed * (1 + this.freqIntensity * 0.05);
+          if (p.y < 0) p.y = h;
+      });
+
+      // Vignette
+      const bgGrd = ctx.createRadialGradient(cx, cy, 0, cx, cy, h * 0.8);
+      bgGrd.addColorStop(0, `rgba(10, 0, 16, ${0.5 + (this.freqIntensity * 0.005)})`); 
+      bgGrd.addColorStop(1, '#030308');
+      ctx.fillStyle = bgGrd;
+      ctx.fillRect(0, 0, w, h);
+
+      // KASHLAK EYE (Core)
+      const baseRadius = 240;
+      // Increased multiplier for more "resonance" / drama
+      const reactiveRadius = baseRadius + (this.freqIntensity * 1.2);
+
+      // outer metal/neon ring
+      ctx.strokeStyle = '#1a1a2e';
+      ctx.lineWidth = 40;
+      ctx.beginPath();
+      ctx.arc(cx, cy, baseRadius + 40, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Neon secondary outline for ring
+      ctx.strokeStyle = this.currentTheme.secondary + '22';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, baseRadius + 60, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // inner black depth
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(cx, cy, baseRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // The Core Glow
+      const glowGrd = ctx.createRadialGradient(cx, cy, 0, cx, cy, reactiveRadius);
+      glowGrd.addColorStop(0, '#ffffff'); // blinding white center
+      glowGrd.addColorStop(0.1, this.currentTheme.secondary); 
+      glowGrd.addColorStop(0.3, this.currentTheme.primary); 
+      glowGrd.addColorStop(0.6, '#000000'); // depth
+      glowGrd.addColorStop(1, 'transparent');
+
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = glowGrd;
+      ctx.beginPath();
+      // Added secondary glow ring for resonance
+      ctx.arc(cx, cy, reactiveRadius, 0, Math.PI * 2);
+      ctx.fill();
+      
+      const pRGB = `${parseInt(this.currentTheme.primary.slice(1,3), 16)}, ${parseInt(this.currentTheme.primary.slice(3,5), 16)}, ${parseInt(this.currentTheme.primary.slice(5,7), 16)}`;
+      const outerGlow = ctx.createRadialGradient(cx, cy, reactiveRadius * 0.8, cx, cy, reactiveRadius * 1.5);
+      outerGlow.addColorStop(0, `rgba(${pRGB}, 0.2)`);
+      outerGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = outerGlow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, reactiveRadius * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalCompositeOperation = 'source-over';
+
+      // Lens Reflection
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, baseRadius * 0.9, -Math.PI * 0.1, Math.PI * 0.2);
+      ctx.stroke();
+
+      // SCANLINE EFFECT
+      const sRGB = `${parseInt(this.currentTheme.primary.slice(1,3), 16)}, ${parseInt(this.currentTheme.primary.slice(3,5), 16)}, ${parseInt(this.currentTheme.primary.slice(5,7), 16)}`;
+      ctx.fillStyle = `rgba(${sRGB}, 0.015)`;
+      for(let i=0; i<h; i+=8) {
+          ctx.fillRect(0, i, w, 2);
+      }
+
+      this.drawHUD();
+    }
+
+    drawHUD() {
+      const ctx = this.ctx;
+      const w = this.width;
+      const h = this.height;
+      // Increased padding to avoid Telegram UI elements (Safe Zones)
+      const padX = 140; 
+      const padY = 280; // Significant top/bottom padding for story safe areas
+      
+      ctx.font = '24px "JetBrains Mono", monospace';
+      ctx.fillStyle = this.currentTheme.secondary + 'cc';
+      ctx.textBaseline = 'middle';
+      ctx.letterSpacing = '4px';
+      ctx.textAlign = 'left';
+
+      // Top Left (Moved Inward)
+      const indicatorX = padX;
+      const textX = padX + 40;
+      const row1Y = padY;
+      
+      // Indicator
+      ctx.fillStyle = (this.isRecording && Math.floor(Date.now() / 500) % 2 === 0) ? this.currentTheme.primary : this.currentTheme.primary + '88';
+      ctx.beginPath();
+      ctx.arc(indicatorX, row1Y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Status Text
+      ctx.fillStyle = this.currentTheme.secondary + 'cc';
+      const statusText = `KASHLAK_VOICE::${this.systemStatus}`;
+      ctx.fillText(statusText, textX, row1Y);
+      
+      // Memory Text
+      ctx.font = '18px "JetBrains Mono", monospace';
+      ctx.textBaseline = 'top';
+      ctx.fillText('ПАМЯТЬ::64ГБ', textX, row1Y + 30);
+
+      // Top Right (Moved Inward)
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'top';
+      ctx.fillText('ЗАДЕРЖКА::0.04мс', w - padX, padY - 10);
+      ctx.font = '24px "JetBrains Mono", monospace';
+      ctx.fillText(this.timerDisplay, w - padX, padY + 20);
+
+      // Bottom Left (Moved Inward)
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'bottom';
+      ctx.strokeStyle = this.currentTheme.secondary + '44';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(padX, h - padY - 60);
+      ctx.lineTo(padX + 240, h - padY - 60);
+      ctx.stroke();
+      ctx.font = '20px "JetBrains Mono", monospace';
+      ctx.fillText('ЧАСТОТА::900МГц', padX, h - padY);
+
+      // Bottom Right (Moved Inward)
+      ctx.textAlign = 'right';
+      ctx.font = '14px "JetBrains Mono", monospace';
+      ctx.fillStyle = this.currentTheme.secondary + '66';
+      ctx.fillText('Syndicate_OS::Kashlak_Core', w - padX, h - padY);
+
+      // Meters (Increased size and impact)
+      const mWidth = 14; // Wider
+      const mHeight = 120; // Taller
+      const mGap = 10;
+      const mX = w - padX;
+      const mY = h - padY - 20;
+
+      for (let i = 0; i < 8; i++) {
+        const val = this.meters[i] || 0;
+        const rectX = mX - (8 - i) * (mWidth + mGap);
+        
+        ctx.fillStyle = this.currentTheme.secondary + '0d';
+        ctx.fillRect(rectX, mY - mHeight, mWidth, mHeight);
+        
+        const fillH = (val / 100) * mHeight;
+        
+        // Dynamic gradient for meters
+        const mGrd = ctx.createLinearGradient(0, mY, 0, mY - fillH);
+        mGrd.addColorStop(0, this.currentTheme.primary);
+        mGrd.addColorStop(1, this.currentTheme.secondary);
+        ctx.fillStyle = mGrd;
+        
+        ctx.fillRect(rectX, mY - fillH, mWidth, fillH);
+        
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = this.currentTheme.secondary;
+        ctx.fillRect(rectX, mY - fillH, mWidth, 3);
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    updateMeters() {
+        if (!this.dataArray) return;
+        const step = Math.floor(this.dataArray.length / 8);
+        for (let i = 0; i < 8; i++) {
+            this.meters[i] = this.dataArray[i * step] / 2.55;
+        }
+    }
+  }
+
+  // Initialize and export to window for access from parent page
+  window.hal = new Hal9000();
+</script>
+
+<style>
+  .hal-container {
+    perspective: 1000px;
+  }
+  
+  #hal-canvas {
+    transition: transform 0.5s ease;
+  }
+  
+  .hal-container:hover #hal-canvas {
+    transform: rotateX(2deg) scale(1.01);
+  }
+</style>

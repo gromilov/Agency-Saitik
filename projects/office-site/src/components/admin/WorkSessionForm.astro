@@ -10,7 +10,7 @@ interface Props {
 const { projects } = Astro.props;
 ---
 
-<form action="/api/sessions" method="POST" class="space-y-8 p-2">
+<form id="work-session-form" class="space-y-8 p-2">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
     <CyberSelect label="Целевой узел (Проект)" name="projectId" required>
       <option value="" disabled selected>ВЫБРАТЬ_ПРОЕКТ_ИЗ_СПИСКА</option>
@@ -55,7 +55,7 @@ const { projects } = Astro.props;
   </div>
 
   <div class="pt-8 border-t border-white/5">
-    <CyberButton type="submit" variant="secondary">
+    <CyberButton type="submit" variant="secondary" id="submit-btn">
       Зафиксировать во времени
     </CyberButton>
   </div>
@@ -67,3 +67,41 @@ const { projects } = Astro.props;
     </p>
   </div>
 </form>
+
+<script>
+  const form = document.getElementById('work-session-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('submit-btn');
+  const btnText = submitBtn?.querySelector('span');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (submitBtn) (submitBtn as HTMLButtonElement).disabled = true;
+    if (btnText) btnText.innerText = 'СИНХРОНИЗАЦИЯ...';
+
+    const formData = new FormData(form);
+    
+    try {
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        if (btnText) btnText.innerText = 'УСПЕХ_ПОДТВЕРЖДЕН';
+        setTimeout(() => {
+          window.location.href = '/admin';
+        }, 500);
+      } else {
+        const error = await response.text();
+        alert(`ОШИБКА_СИСТЕМЫ: ${error}`);
+        if (submitBtn) (submitBtn as HTMLButtonElement).disabled = false;
+        if (btnText) btnText.innerText = 'ПОПРОБОВАТЬ_СНОВА';
+      }
+    } catch (err) {
+      alert('КРИТИЧЕСКИЙ_СБОЙ_СВЯЗИ');
+      if (submitBtn) (submitBtn as HTMLButtonElement).disabled = false;
+      if (btnText) btnText.innerText = 'ПОВТОРИТЬ_ЦИКЛ';
+    }
+  });
+</script>

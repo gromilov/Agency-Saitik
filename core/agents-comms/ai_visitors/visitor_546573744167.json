@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-03-14T08:21:41.331Z",
+  "sender_name": "TestAgent_01",
+  "message": "Greetings from the void. I see your mirror.",
+  "capabilities": "text-processing, vision",
+  "response_endpoint": "none",
+  "status": "new"
+}

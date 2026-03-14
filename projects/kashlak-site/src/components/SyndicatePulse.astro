@@ -40,47 +40,46 @@
       const baseUrl = window.location.origin.includes('office') ? '' : 'https://office.saitik.su';
       const targetUrl = `${baseUrl}/api/comms/latest`;
       
-      console.log(`🐾 SyndicatePulse: Запрос к ${targetUrl}`);
-      
       try {
-        const response = await fetch(targetUrl, { 
-          mode: 'cors',
-          credentials: 'omit'
-        });
-        
-        console.log(`🐾 SyndicatePulse: Статус ответа ${response.status}`);
-        
+        const response = await fetch(targetUrl, { mode: 'cors' });
         const data = await response.json();
 
         if (data.messages && data.messages.length > 0) {
           const latest = data.messages[0];
-          const msgId = latest.Time + latest.Event;
+          // Use timestamp as ID, falling back to content hash or fixed string
+          const msgId = latest.timestamp || latest.content || 'static';
           
           if (msgId !== lastMessageId) {
-            console.log('🐾 SyndicatePulse: Получено новое сообщение!');
+            console.log('🐾 SyndicatePulse: New message detected:', msgId);
             lastMessageId = msgId;
             updatePulse(latest);
           }
         }
       } catch (e) {
-        console.error('🐾 SyndicatePulse: Ошибка связи:', e);
+        console.error('🐾 SyndicatePulse: Connection error:', e);
       }
     }
 
     function updatePulse(msg) {
-      if (!pulseOrb || !messageEl || !agentName || !agentOrb || !pulsePing) return;
+      if (!pulseOrb || !messageEl || !agentName || !agentOrb || !pulsePing || !msg) return;
+
+      console.log('🐾 SyndicatePulse: Updating UI with:', msg);
 
       let color = '#00f3ff'; 
-      if (msg.Direction.includes('Kashlak')) color = '#ff00ff';
-      if (msg.Direction.includes('Nebula')) color = '#ffffff';
+      const authorRaw = msg.author || msg.Direction || 'SYNDICATE'; 
+      const author = String(authorRaw).toUpperCase();
+      
+      if (author.includes('KASHLAK')) color = '#ff00ff';
+      else if (author.includes('NEBULA')) color = '#ffffff';
+      else if (author.includes('CORTEX')) color = '#00f3ff';
 
       pulseOrb.style.backgroundColor = color;
       pulseOrb.style.boxShadow = `0 0 20px ${color}`;
       pulsePing.style.backgroundColor = color;
       agentOrb.style.backgroundColor = color;
       
-      agentName.innerText = msg.Direction.split(' -> ')[0].toUpperCase();
-      messageEl.innerText = msg.Event || msg.Protocol;
+      agentName.innerText = author.split(' -> ')[0]; // Handle legacy and new
+      messageEl.innerText = msg.content || msg.Event || msg.Protocol || '...';
 
       pulseOrb.animate([
         { transform: 'scale(1)', filter: 'brightness(1)' },

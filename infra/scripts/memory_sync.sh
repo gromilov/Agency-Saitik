@@ -12,7 +12,7 @@ echo "🐾 Запуск процесса дистилляции [$DATE $TIMESTAM
 
 # 1. Сбор измененных файлов (Git Context)
 cd $SYNDICATE_ROOT
-MODIFIED_FILES=$(git status --porcelain | awk '{print $2}')
+MODIFIED_FILES=$(git status --porcelain | awk '{print $2}' | grep -v "^clients/")
 
 # 2. Генерация Handoff-артефакта
 HANDOFF_FILE="$HANDOFF_DIR/HANDOFF_${DATE}.md"

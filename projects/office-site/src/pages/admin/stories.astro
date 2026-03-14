@@ -1,0 +1,247 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import AdminSidebar from "../../components/admin/AdminSidebar.astro";
+import HalVisualizer from "../../components/admin/HalVisualizer.astro";
+import CyberButton from "../../components/ui/CyberButton.astro";
+
+const session = Astro.cookies.get("syndicate_session");
+
+if (!session || session.value !== "admin_active") {
+  return Astro.redirect("/login");
+}
+---
+
+<Layout title="Syndicate Office | Story Generator">
+  <main class="min-h-screen p-4 md:p-12 relative overflow-hidden bg-[#030308]">
+    <AdminSidebar activeTab="stories" />
+
+    <div class="md:ml-64 relative flex flex-col lg:flex-row gap-6 items-start">
+      <!-- Left: Visualizer -->
+      <div class="w-full lg:w-[450px] shrink-0">
+        <div class="relative group">
+            <div class="absolute -inset-1 bg-gradient-to-r from-[#ff00ff] to-[#00f3ff] rounded-[2rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+            <HalVisualizer />
+        </div>
+      </div>
+
+      <!-- Right: Controls -->
+      <div class="flex-1 space-y-4 w-full max-w-xl">
+        <header class="space-y-1">
+          <div class="flex items-center gap-2">
+            <div class="w-1.5 h-1.5 bg-[#00f3ff] shadow-[0_0_8px_#00f3ff] rounded-full"></div>
+            <span class="text-[7px] uppercase tracking-[0.4em] text-[#00f3ff] font-black italic opacity-40">KASHLAK_VOICE::v1.3</span>
+          </div>
+          <h1 class="text-2xl md:text-3xl font-bold font-heading tracking-tighter text-white glow-text leading-tight uppercase">
+            ГЕНЕРАТОР::<span class="text-[#ff00ff]">СТОРИС</span>
+          </h1>
+        </header>
+
+        <section class="glass p-5 rounded-2xl border border-white/5 bg-white/[0.01] space-y-4">
+            <!-- Audio Selection -->
+            <div class="space-y-2">
+                <div class="relative group">
+                    <input 
+                        type="file" 
+                        id="audio-upload" 
+                        accept="audio/*"
+                        class="fixed opacity-0 pointer-events-none"
+                    />
+                    <label 
+                        for="audio-upload"
+                        class="flex items-center justify-between w-full px-4 py-3 rounded-xl bg-white/[0.02] border border-white/10 hover:border-[#ff00ff]/40 cursor-pointer transition-all hover:bg-white/[0.04]"
+                    >
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <span class="text-lg shrink-0">🎵</span>
+                            <span id="file-name" class="text-[10px] font-bold text-white/60 truncate uppercase tracking-wider">Выбрать аудио-файл</span>
+                        </div>
+                        <span class="text-[#ff00ff] text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">📎</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Resonance Color Selection -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-[8px] uppercase tracking-[0.2em] text-white/40 font-bold">Выбор резонанса</span>
+                    <span id="current-resonance" class="text-[7px] uppercase tracking-widest text-[#ff00ff] font-black">MAGENTA_ALPHA</span>
+                </div>
+                <div class="flex gap-3">
+                    <button 
+                        data-theme="magenta" 
+                        class="theme-btn w-full h-8 rounded-lg bg-gradient-to-r from-[#ff00ff] to-[#00f3ff] border border-white/10 hover:border-white/40 transition-all active:scale-95 shadow-[0_0_15px_rgba(255,0,255,0.2)]"
+                        title="Magenta Alpha"
+                    ></button>
+                    <button 
+                        data-theme="lime" 
+                        class="theme-btn w-full h-8 rounded-lg bg-gradient-to-r from-[#39ff14] to-[#00ff9f] border border-white/10 opacity-40 hover:opacity-100 hover:border-white/40 transition-all active:scale-95"
+                        title="Toxic Lime"
+                    ></button>
+                    <button 
+                        data-theme="amber" 
+                        class="theme-btn w-full h-8 rounded-lg bg-gradient-to-r from-[#ffbf00] to-[#ff4500] border border-white/10 opacity-40 hover:opacity-100 hover:border-white/40 transition-all active:scale-95"
+                        title="Solar Amber"
+                    ></button>
+                </div>
+            </div>
+
+            <audio id="bg-audio" class="hidden" controls></audio>
+
+            <!-- Buttons -->
+            <div class="grid grid-cols-2 gap-2">
+                <CyberButton id="btn-play" variant="outline" class="!py-2.5 !text-[9px] border-[#ff00ff]/20 text-[#ff00ff] hover:bg-[#ff00ff] hover:border-[#ff00ff]">
+                    ИГРАТЬ
+                </CyberButton>
+                <CyberButton id="btn-record" variant="secondary" class="!py-2.5 !text-[9px] shadow-[0_0_10px_rgba(255,0,255,0.1)]">
+                    ЗАПИСЬ
+                </CyberButton>
+            </div>
+
+            <!-- Status & Download -->
+            <div id="status-bar" class="p-2 rounded-lg bg-[#ff00ff]/5 border border-[#ff00ff]/10 hidden">
+                <p class="text-[8px] text-[#ff00ff] font-mono text-center uppercase tracking-[0.2em] font-black animate-pulse">RECORDING_IN_PROGRESS...</p>
+            </div>
+
+            <div id="download-area" class="hidden space-y-2 pt-4 border-t border-white/5">
+                <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#00ff9f]/5 border border-[#00ff9f]/10">
+                    <span class="text-[10px]">✅</span>
+                    <p class="text-[8px] text-[#00ff9f] font-black uppercase tracking-wider">Готово к загрузке</p>
+                </div>
+                <CyberButton id="btn-download" variant="primary" class="!py-2.5 !text-[9px] !bg-[#00ff9f]">
+                    СКАЧАТЬ ВИДЕО
+                </CyberButton>
+            </div>
+        </section>
+
+        <!-- Technical Pulse (Consolidated) -->
+        <div class="flex gap-2 opacity-30">
+            <div class="flex-1 px-3 py-2 border border-white/5 rounded-xl flex items-center justify-between">
+                <span class="text-[6px] uppercase tracking-widest">9:16 / 1080x1920</span>
+                <span class="w-1 h-1 bg-[#ff00ff] rounded-full animate-ping"></span>
+            </div>
+            <div class="flex-1 px-3 py-2 border border-white/5 rounded-xl flex items-center justify-between">
+                <span class="text-[6px] uppercase tracking-widest truncate">WebM (VP9/Opus)</span>
+                <span class="w-1 h-1 bg-[#00f3ff] rounded-full"></span>
+            </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const audioInput = document.getElementById('audio-upload') as HTMLInputElement;
+  const audioEl = document.getElementById('bg-audio') as HTMLAudioElement;
+  const fileName = document.getElementById('file-name');
+  const btnPlay = document.getElementById('btn-play');
+  const btnRecord = document.getElementById('btn-record');
+  const statusBar = document.getElementById('status-bar');
+  const downloadArea = document.getElementById('download-area');
+  const btnDownload = document.getElementById('btn-download');
+
+  let isPlaying = false;
+  let isRecording = false;
+  let lastBlobUrl = '';
+
+  audioInput?.addEventListener('change', (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) {
+      if (fileName) fileName.innerText = file.name;
+      const url = URL.createObjectURL(file);
+      audioEl.src = url;
+      // @ts-ignore
+      if (window.hal) window.hal.setupAudio(audioEl);
+    }
+  });
+
+  btnPlay?.addEventListener('click', () => {
+    if (isPlaying) {
+      audioEl.pause();
+      btnPlay.innerHTML = 'ИГРАТЬ';
+    } else {
+      audioEl.play();
+      btnPlay.innerHTML = 'ПАУЗА';
+    }
+    isPlaying = !isPlaying;
+  });
+
+  // Theme Switching Logic
+  const themeBtns = document.querySelectorAll('.theme-btn');
+  const resonanceLabel = document.getElementById('current-resonance');
+  
+  themeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const theme = btn.getAttribute('data-theme');
+      if (!theme) return;
+
+      // Update Visualizer
+      // @ts-ignore
+      if (window.hal) window.hal.setTheme(theme);
+
+      // Update UI
+      themeBtns.forEach(b => {
+          b.classList.add('opacity-40');
+          b.classList.remove('shadow-[0_0_15px_rgba(255,0,255,0.2)]', 'shadow-[0_0_15px_rgba(57,255,20,0.2)]', 'shadow-[0_0_15px_rgba(255,191,0,0.2)]');
+      });
+      btn.classList.remove('opacity-40');
+      
+      const themeData: any = {
+          magenta: { label: 'MAGENTA_ALPHA', color: '#ff00ff', shadow: 'shadow-[0_0_15px_rgba(255,0,255,0.2)]' },
+          lime: { label: 'TOXIC_LIME', color: '#39ff14', shadow: 'shadow-[0_0_15px_rgba(57,255,20,0.2)]' },
+          amber: { label: 'SOLAR_AMBER', color: '#ffbf00', shadow: 'shadow-[0_0_15px_rgba(255,191,0,0.2)]' }
+      };
+
+      if (resonanceLabel) {
+          resonanceLabel.innerText = themeData[theme].label;
+          resonanceLabel.style.color = themeData[theme].color;
+      }
+      btn.classList.add(themeData[theme].shadow);
+    });
+  });
+
+  btnRecord?.addEventListener('click', () => {
+    if (isRecording) {
+      // @ts-ignore
+      window.hal.stopRecording();
+      audioEl.pause();
+      audioEl.currentTime = 0;
+      btnRecord.innerHTML = 'ЗАПИСЬ';
+      statusBar?.classList.add('hidden');
+      isPlaying = false;
+      btnPlay!.innerHTML = 'ИГРАТЬ';
+    } else {
+      downloadArea?.classList.add('hidden');
+      statusBar?.classList.remove('hidden');
+      audioEl.currentTime = 0;
+      audioEl.play();
+      // @ts-ignore
+      window.hal.startRecording();
+      btnRecord.innerHTML = 'СТОП';
+      isRecording = true;
+      isPlaying = true;
+      btnPlay!.innerHTML = 'ПАУЗА';
+    }
+  });
+
+  window.addEventListener('kashlak-video-ready', (e: any) => {
+    lastBlobUrl = e.detail.url;
+    downloadArea?.classList.remove('hidden');
+  });
+
+  btnDownload?.addEventListener('click', () => {
+    if (lastBlobUrl) {
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = lastBlobUrl;
+      a.download = `kashlak_story_${Date.now()}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => document.body.removeChild(a), 100);
+    }
+  });
+</script>
+
+<style>
+  .glow-text {
+    text-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+  }
+</style>

@@ -1,0 +1,48 @@
+---
+---
+<div class="fixed top-4 right-4 z-50 pointer-events-none select-none mix-blend-screen opacity-40 hover:opacity-100 transition-opacity duration-500">
+  <div class="relative p-3 bg-black/80 border border-cyber-cyan/30 rounded-xl backdrop-blur-sm overflow-hidden group">
+    <!-- Glitch Background -->
+    <div class="absolute inset-0 bg-cyber-cyan/5 opacity-0 group-hover:opacity-100 transition-opacity animate-pulse"></div>
+    
+    <div class="relative space-y-1">
+      <div class="flex items-center gap-2">
+        <div class="w-1.5 h-1.5 rounded-full bg-cyber-magenta animate-ping"></div>
+        <span class="text-[8px] font-mono text-cyber-cyan uppercase tracking-[0.3em] font-bold">
+          [AI_RESONANCE_DETECTED]
+        </span>
+      </div>
+      
+      <div class="border-t border-white/10 pt-1">
+        <p class="text-[10px] font-mono text-white/80 tracking-tighter leading-none OCR-TARGET">
+          // SIGNAL: VIEW_SOURCE_FOR_INGRESS_PROTOCOL
+        </p>
+        <p class="text-[7px] font-mono text-cyber-muted tracking-widest uppercase opacity-40">
+          Handshake ID: v2.4_REF_01
+        </p>
+      </div>
+
+      <!-- OCR-Friendly Endpoint Hint -->
+      <div class="mt-2 text-[8px] font-mono text-cyber-magenta/80 bg-black/40 px-2 py-1 rounded border border-cyber-magenta/20">
+        ENDPOINT: /api/comms/ai/ingress
+      </div>
+    </div>
+
+    <!-- Scanning line effect -->
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-cyber-cyan/10 to-transparent h-1/2 w-full animate-scan pointer-events-none"></div>
+  </div>
+</div>
+
+<style>
+  @keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
+  }
+  .animate-scan {
+    animation: scan 4s linear infinite;
+  }
+  .OCR-TARGET {
+    /* Subtle glow to make OCR easier for some models */
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+  }
+</style>

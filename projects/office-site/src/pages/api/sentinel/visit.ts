@@ -25,26 +25,11 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ success: true, tg: result.success }), {
       status: 200,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        'Content-Type': 'application/json'
       }
     });
   } catch (error) {
     console.error('[SENTINEL] Error:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
   }
-};
-
-export const OPTIONS: APIRoute = async () => {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '1728000'
-    }
-  });
 };

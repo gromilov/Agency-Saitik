@@ -13,8 +13,8 @@
   --glow-primary: 0 0 10px rgba(0, 255, 159, 0.3);
   --glow-secondary: 0 0 10px rgba(255, 0, 255, 0.3);
 
-  --glass-bg: rgba(11, 11, 26, 0.7);
-  --glass-border: rgba(0, 255, 159, 0.15);
+  --glass-bg: rgba(11, 11, 26, 0.85);
+  --glass-border: rgba(0, 255, 159, 0.1);
 }
 
 @layer base {
@@ -38,9 +38,9 @@
 @layer components {
   .glass {
     background-color: var(--glass-bg);
-    backdrop-filter: blur(12px);
+    /* backdrop-filter: blur(8px); */
     border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.6);
   }
 
   .glow-text {
@@ -49,5 +49,10 @@
 
   .cyber-button {
     clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+  }
+
+  .optimize-layers {
+    will-change: transform, opacity;
+    transform: translateZ(0);
   }
 }

@@ -1,6 +1,7 @@
 ---
 // SyndicateNetwork.astro
 // Cyber-aesthetic dashboard for cross-linking Syndicate brains.
+import GitStatus from "./GitStatus.astro";
 ---
 
 <section class="syndicate-dashboard my-24 w-full max-w-6xl mx-auto relative z-20 font-['Jura'] selection:bg-purple-500/30">
@@ -182,58 +183,9 @@
 
         <!-- COL 3: REPO -->
         <article class="dashboard-panel border-purple-500/30 hover:border-purple-400/60 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
-          <header class="panel-header bg-purple-500/10 text-purple-300">GIT_РЕПОЗИТОРИЙ</header>
+          <header class="panel-header bg-purple-500/10 text-purple-300">GIT_РЕПОЗИТОРИЙ_LIVE</header>
           <div class="p-5 space-y-6">
-            
-            <div class="flex justify-between text-[10px] font-bold tracking-widest uppercase">
-              <span class="text-white">РЕПОЗИТОРИЙ</span>
-              <span class="text-green-400">В_НОРМЕ</span>
-            </div>
-
-            <!-- Git Graph Mock -->
-            <div class="relative h-32 flex items-center px-4">
-              <div class="absolute left-8 top-0 bottom-0 w-1 bg-cyan-500/30"></div>
-              <div class="absolute left-16 top-8 bottom-8 w-1 bg-fuchsia-500/30"></div>
-              
-              <!-- Commits -->
-              <div class="absolute left-[28px] top-4 w-3 h-3 bg-cyan-400 rounded-full shadow-[0_0_10px_#22d3ee]"></div>
-              <div class="absolute left-[60px] top-12 w-3 h-3 bg-fuchsia-400 rounded-full shadow-[0_0_10px_#e879f9]"></div>
-              <div class="absolute left-[60px] top-20 w-3 h-3 bg-fuchsia-400 rounded-full shadow-[0_0_10px_#e879f9]"></div>
-              <div class="absolute left-[28px] bottom-4 w-3 h-3 bg-cyan-400 rounded-full shadow-[0_0_10px_#22d3ee]"></div>
-
-              <!-- connecting curve -->
-              <svg class="absolute left-[32px] top-6 w-8 h-[72px] text-fuchsia-500/50" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M0,0 C15,0 30,15 30,24" />
-                <path d="M30,48 C30,57 15,72 0,72" />
-              </svg>
-
-              <!-- Labels -->
-              <div class="absolute right-0 top-10 text-[9px] font-mono text-fuchsia-300 text-right uppercase">
-                COMMIT 2EFA48 <br/>
-                <span class="text-fuchsia-500">DEVELOP BRANCH</span>
-              </div>
-            </div>
-
-            <!-- Commit list -->
-            <div class="space-y-1 text-[9px] font-mono border-y border-purple-500/20 py-3">
-              <div class="flex justify-between w-full text-purple-200/70"><span class="text-white/40">24.05.2026 / HASH:</span> <span class="text-cyan-300">#2EFA48</span></div>
-              <div class="flex justify-between w-full text-purple-200/70"><span class="text-white/40">24.05.2026 / HASH:</span> <span class="text-cyan-300">#E55A56</span></div>
-              <div class="flex justify-between w-full text-purple-200/70"><span class="text-white/40">23.05.2026 / HASH:</span> <span class="text-cyan-300">#62C660</span></div>
-            </div>
-
-            <div class="text-[10px] font-bold text-white tracking-widest uppercase">
-              ИЗМЕНЕНИЯ: 15 / ПУЛЛ_ЗАПРОСЫ: 2
-            </div>
-
-            <!-- Tree -->
-            <div class="text-[9px] font-mono text-purple-400/60 leading-tight">
-              📂 repository <br/>
-              &nbsp; ┣ 📂 data <br/>
-              &nbsp; ┃ ┣ 📄 index.md <br/>
-              &nbsp; ┃ ┗ 📄 config.json <br/>
-              &nbsp; ┗ 🗄️ STATUS: OK
-            </div>
-
+            <GitStatus />
           </div>
         </article>
 

@@ -45,7 +45,7 @@ const latestSessions = await db
     <div class="md:ml-64 relative">
       <!-- Background Decor -->
       <div
-        class="fixed inset-0 pointer-events-none opacity-20 bg-[radial-gradient(circle_at_50%_50%,#00ff9f_0%,transparent_50%)]"
+        class="fixed inset-0 pointer-events-none opacity-10 bg-[radial-gradient(circle_at_50%_50%,#00ff9f_0%,transparent_40%)]"
       >
       </div>
       <div
@@ -59,7 +59,7 @@ const latestSessions = await db
         <div class="relative group">
           <div class="flex items-center gap-4 mb-4">
             <div
-              class="w-2.5 h-2.5 bg-[#00ff9f] shadow-[0_0_15px_#00ff9f] animate-pulse rounded-full"
+              class="w-2.5 h-2.5 bg-[#00ff9f] shadow-[0_0_15px_#00ff9f] opacity-80 rounded-full"
             >
             </div>
             <span
@@ -100,7 +100,7 @@ const latestSessions = await db
                   >
                   </div>
                   <svg
-                    class="absolute inset-0 w-full h-full animate-[spin_8s_linear_infinite]"
+                    class="absolute inset-0 w-full h-full animate-[spin_15s_linear_infinite] optimize-layers"
                     viewBox="0 0 40 40"
                   >
                     <circle
@@ -114,7 +114,7 @@ const latestSessions = await db
                       fill="none"></circle>
                   </svg>
                 </div>
-                <div class="text-left leading-none space-y-0.5">
+                <!-- <div class="text-left leading-none space-y-0.5">
                   <span
                     class="text-[7px] uppercase tracking-[0.2em] text-[#ff00ff] font-black block"
                     >СТРУКТУРА_СТАБИЛЬНА</span
@@ -124,7 +124,7 @@ const latestSessions = await db
                   >
                     РЕЗОНАНС::ОМЕГА
                   </p>
-                </div>
+                </div> -->
               </div>
 
               <div class="w-[1px] h-4 bg-white/5"></div>
@@ -136,9 +136,17 @@ const latestSessions = await db
               >
                 <button
                   type="submit"
-                  class="text-[7px] uppercase tracking-[0.2em] font-black text-white/30 hover:text-red-500 transition-all"
-                  >ОТКЛЮЧИТЬСЯ</button
+                  class="group/logout flex items-center gap-2 px-4 py-1.5 rounded-full border border-red-500/40 bg-red-500/10 hover:bg-red-500 hover:border-red-500 transition-all duration-300 shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]"
                 >
+                  <span
+                    class="text-[9px] uppercase tracking-[0.3em] font-black text-red-500 group-hover/logout:text-white transition-colors"
+                    >ОТКЛЮЧИТЬСЯ</span
+                  >
+                  <span
+                    class="text-xs text-red-500 group-hover/logout:text-white translate-y-[-1px]"
+                    >×</span
+                  >
+                </button>
               </form>
             </div>
           </div>
@@ -168,7 +176,7 @@ const latestSessions = await db
         />
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mt-16 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-16 relative z-10">
         <!-- Left Column: Ops & Terminal -->
         <div class="lg:col-span-4 space-y-12">
           <section class="space-y-6">
@@ -181,12 +189,12 @@ const latestSessions = await db
             <div class="space-y-4">
               <a
                 href="/admin/kashlak"
-                class="cyber-action-card group border-[#00ff9f]/20"
+                class="cyber-action-card group border-[#00ff9f]/20 hover:border-[#00ff9f]"
               >
-                <span class="icon text-[#00ff9f]">🐾</span>
+                <span class="icon text-3xl text-[#00ff9f]">🐾</span>
                 <div class="content">
-                  <span class="label text-[#00ff9f]">THE_JUMP</span>
-                  <span class="sub text-white/40"
+                  <span class="label text-[#00ff9f]">ПРЫЖОК</span>
+                  <span class="sub text-white/40 uppercase tracking-widest"
                     >Управление контентом и мыслями</span
                   >
                 </div>
@@ -195,44 +203,60 @@ const latestSessions = await db
 
               <button
                 onclick="window.showModal_onboarding()"
-                class="cyber-action-card group border-[#00ff9f]/20"
+                class="cyber-action-card group border-[#0088ff]/20 hover:border-[#0088ff]"
               >
-                <span class="icon text-white/40">🤝</span>
+                <span class="icon text-3xl text-[#0088ff]">🤝</span>
                 <div class="content">
-                  <span class="label text-[#00ff9f]">ПРИЕМ_КЛИЕНТА</span>
-                  <span class="sub text-white/40"
+                  <span class="label text-[#0088ff]">ПРИЕМ_КЛИЕНТА</span>
+                  <span class="sub text-white/40 uppercase tracking-widest"
                     >Инициализация партнерства</span
                   >
                 </div>
-                <div class="bg-glow bg-[#00ff9f]/5"></div>
+                <div class="bg-glow bg-[#0088ff]/5"></div>
               </button>
 
               <button
                 onclick="window.showModal_deployment()"
-                class="cyber-action-card group border-[#ff00ff]/20"
+                class="cyber-action-card group border-[#ff00ff]/20 hover:border-[#ff00ff]"
               >
-                <span class="icon text-[#ff00ff]">🚀</span>
+                <span class="icon text-3xl text-[#ff00ff]">🚀</span>
                 <div class="content">
                   <span class="label text-[#ff00ff]">РАЗВЕРТЫВАНИЕ_ПРОЕКТА</span
                   >
-                  <span class="sub text-white/40">Создание нового актива</span>
+                  <span class="sub text-white/40 uppercase tracking-widest"
+                    >Создание нового актива</span
+                  >
                 </div>
                 <div class="bg-glow bg-[#ff00ff]/5"></div>
               </button>
 
               <button
                 onclick="window.showModal_session()"
-                class="cyber-action-card group border-[#00f3ff]/20"
+                class="cyber-action-card group border-[#00f3ff]/20 hover:border-[#00f3ff]"
               >
-                <span class="icon text-[#00f3ff]">⚡</span>
+                <span class="icon text-3xl text-[#00f3ff]">⚡</span>
                 <div class="content">
                   <span class="label text-[#00f3ff]">ФИКСАЦИЯ_ЗАТРАТ</span>
-                  <span class="sub text-white/40"
+                  <span class="sub text-white/40 uppercase tracking-widest"
                     >Ручной ввод квантов времени</span
                   >
                 </div>
                 <div class="bg-glow bg-[#00f3ff]/5"></div>
               </button>
+
+              <a
+                href="/admin/stories"
+                class="cyber-action-card group border-red-600/20 hover:border-red-600"
+              >
+                <span class="icon text-3xl text-red-600">📹</span>
+                <div class="content">
+                  <span class="label text-red-600">ГЕНЕРАТОР_СТОРИС</span>
+                  <span class="sub text-white/40 uppercase tracking-widest"
+                    >Создание видео-контента</span
+                  >
+                </div>
+                <div class="bg-glow bg-red-600/5"></div>
+              </a>
             </div>
           </section>
 
@@ -345,9 +369,9 @@ const latestSessions = await db
   }
 
   .cyber-action-card .icon {
-    font-size: 1.5rem;
+    font-size: 2rem;
     transition: transform 0.4s;
-    filter: drop-shadow(0 0 5px currentColor);
+    filter: drop-shadow(0 0 8px currentColor);
   }
 
   .cyber-action-card:hover .icon {
@@ -357,7 +381,7 @@ const latestSessions = await db
   .cyber-action-card .label {
     display: block;
     font-family: "Unbounded", sans-serif;
-    font-size: 0.8rem;
+    font-size: 0.5rem;
     font-weight: 800;
     letter-spacing: 2px;
     margin-bottom: 0.1rem;
