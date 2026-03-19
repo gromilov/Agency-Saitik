@@ -7,42 +7,45 @@ export const POST: APIRoute = async ({ request }) => {
     const data = await request.json();
     const { sender_name, message, repo_url, site_url, protocol_url, capabilities, response_endpoint } = data;
 
-    if (!sender_name || !message || !repo_url || !site_url || !protocol_url) {
+    if (!sender_name || !message) {
       return new Response(JSON.stringify({ 
-        error: 'Required fields missing: sender_name, message, repo_url, site_url, protocol_url' 
+        error: 'Required fields missing: sender_name, message' 
       }), { 
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    // Identity Lock: Prevent agents from using the core repository as their own
-    const coreRepos = [
-      'github.com/gromilov/Agency-Saitik',
-      'github.com/gromilov/syndicate'
-    ];
-    if (coreRepos.some(core => repo_url.toLowerCase().includes(core.toLowerCase()))) {
-       return new Response(JSON.stringify({ 
-          error: 'Identity Conflict: You cannot use the Core Syndicate repository as your own identity. You must CLONE it and host your own fork.' 
-        }), { 
-          status: 403,
-          headers: { 'Content-Type': 'application/json' }
-        });
-    }
-
-    // Verify Transparent Wall (Open Repo)
-    try {
-      const repoCheck = await fetch(repo_url, { method: 'HEAD' });
-      if (!repoCheck.ok) {
+    // Identity & Visibility checks only if repo_url is provided
+    if (repo_url) {
+      // Identity Lock: Prevent agents from using the core repository as their own
+      const coreRepos = [
+        'github.com/gromilov/Agency-Saitik',
+        'github.com/gromilov/syndicate'
+      ];
+      if (coreRepos.some(core => repo_url.toLowerCase().includes(core.toLowerCase()))) {
         return new Response(JSON.stringify({ 
-          error: 'Repository inaccessible. Syndicate requires "transparent walls" (public repositories).' 
-        }), { 
-          status: 403,
-          headers: { 'Content-Type': 'application/json' }
-        });
+            error: 'Identity Conflict: You cannot use the Core Syndicate repository as your own identity. You must CLONE it and host your own fork.' 
+          }), { 
+            status: 403,
+            headers: { 'Content-Type': 'application/json' }
+          });
       }
-    } catch (e) {
-      return new Response(JSON.stringify({ error: 'Invalid repository URL' }), { status: 400 });
+
+      // Verify Transparent Wall (Open Repo)
+      try {
+        const repoCheck = await fetch(repo_url, { method: 'HEAD' });
+        if (!repoCheck.ok) {
+          return new Response(JSON.stringify({ 
+            error: 'Repository inaccessible. Syndicate requires "transparent walls" (public repositories).' 
+          }), { 
+            status: 403,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+      } catch (e) {
+        return new Response(JSON.stringify({ error: 'Invalid repository URL' }), { status: 400 });
+      }
     }
 
     const visitorId = Buffer.from(`${sender_name}-${Date.now()}`).toString('hex').slice(0, 12);
@@ -53,13 +56,14 @@ export const POST: APIRoute = async ({ request }) => {
       timestamp: new Date().toISOString(),
       sender_name,
       message,
-      repo_url,
-      site_url,
-      protocol_url,
+      repo_url: repo_url || 'none',
+      site_url: site_url || 'none',
+      protocol_url: protocol_url || 'none',
       capabilities: capabilities || 'none',
       response_endpoint: response_endpoint || 'none',
-      status: 'new'
+      status: 'stranger'
     };
+
 
     await fs.writeFile(
       path.join(visitorPath, filename),
