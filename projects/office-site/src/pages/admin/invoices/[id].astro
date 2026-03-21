@@ -1,0 +1,136 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { db } from "../../../db";
+import { invoices, projects, workSessions } from "../../../db/schema";
+import { eq, desc } from "drizzle-orm";
+
+const { id } = Astro.params;
+
+if (!id) return Astro.redirect("/admin");
+
+const invoice = await db.query.invoices.findFirst({
+  where: eq(invoices.id, id),
+  with: {
+    project: true,
+  }
+});
+
+if (!invoice) return Astro.redirect("/admin");
+
+const sessions = await db.select()
+  .from(workSessions)
+  .where(eq(workSessions.invoiceId, id))
+  .orderBy(desc(workSessions.date));
+
+const totalMinutes = sessions.reduce((acc, s) => acc + s.minutes, 0);
+const hours = Math.floor(totalMinutes / 60);
+const mins = totalMinutes % 60;
+const timeDisplay = hours > 0 ? `${hours}ч ${mins}мин` : `${mins}мин`;
+---
+
+<Layout title={`Счет #${id.slice(0, 8)} - Syndicate`}>
+  <main class="min-h-screen bg-[#030308] text-white p-4 md:p-8 font-sans">
+    <!-- Invoice Container -->
+    <div class="max-w-xl mx-auto space-y-8 animate-fade-in">
+      
+      <!-- Header -->
+      <div class="flex justify-between items-start border-b border-white/10 pb-8">
+        <div>
+          <h1 class="text-4xl font-heading font-black italic text-[#00ff9f] glow-text">SYNDICATE</h1>
+          <p class="text-[10px] text-white/40 uppercase tracking-[0.3em] font-mono mt-2">Mobile_Finance_Node_v1.0</p>
+        </div>
+        <div class="text-right">
+          <span class={`text-[10px] px-3 py-1 rounded font-black uppercase ${
+            invoice.status === 'paid' ? 'bg-[#00ff9f]/20 text-[#00ff9f]' : 'bg-[#ff00ff]/20 text-[#ff00ff]'
+          }`}>
+            {invoice.status === 'paid' ? 'ОПЛАЧЕНО' : 'ОЖИДАЕТ_ОПЛАТЫ'}
+          </span>
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div class="glass p-6 rounded-3xl border border-white/5 space-y-4">
+        <div class="flex justify-between items-center">
+            <span class="text-white/40 text-[10px] uppercase font-bold tracking-widest">Проект</span>
+            <span class="text-white font-bold">{invoice.project?.name}</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-white/40 text-[10px] uppercase font-bold tracking-widest">Дата выставления</span>
+            <span class="text-white/80">{invoice.createdAt?.toLocaleDateString()}</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-white/40 text-[10px] uppercase font-bold tracking-widest">Срок оплаты</span>
+            <span class="text-[#ff00ff] font-bold">{invoice.dueDate || "Без срока"}</span>
+        </div>
+      </div>
+
+      <!-- Report Details -->
+      <div class="space-y-4">
+        <h2 class="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 italic ml-2">ОТЧЕТ_О_ВЫПОЛНЕННОЙ_РАБОТЕ</h2>
+        <div class="space-y-3">
+          {sessions.map(s => (
+            <div class="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex justify-between items-start gap-4 ring-1 ring-white/5 hover:ring-[#00ff9f]/50 transition-all">
+              <div class="space-y-1">
+                <p class="text-sm text-white/90 leading-tight">{s.description}</p>
+                <p class="text-[9px] text-white/30 uppercase font-mono">{s.date}</p>
+              </div>
+              <span class="text-[#00ff9f] font-mono text-xs whitespace-nowrap">{s.minutes}М</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="glass p-8 rounded-[2.5rem] border border-[#00ff9f]/30 bg-[#00ff9f]/5 shadow-[0_0_50px_rgba(0,255,159,0.05)]">
+        <div class="space-y-6">
+          <div class="flex justify-between items-end border-b border-white/10 pb-4">
+            <span class="text-white/40 text-[10px] uppercase font-black tracking-widest">Итоговое время</span>
+            <span class="text-2xl font-heading text-white">{timeDisplay}</span>
+          </div>
+          <div class="flex justify-between items-end pt-2">
+            <span class="text-white/40 text-[10px] uppercase font-black tracking-widest">К оплате</span>
+            <span class="text-4xl font-heading text-[#00ff9f] glow-text tracking-tighter italic">{invoice.amount.toLocaleString()} <span class="text-sm italic opacity-60">RUB</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Instructions -->
+      <div class="bg-[#ff00ff]/5 border border-[#ff00ff]/20 p-8 rounded-[2.5rem] text-center space-y-6">
+        <h3 class="text-[10px] font-black uppercase tracking-[0.5em] text-[#ff00ff]">ИНСТРУКЦИЯ_ПО_ОПЛАТЕ</h3>
+        <div class="space-y-4">
+          <p class="text-sm text-white/80 leading-relaxed font-heading uppercase tracking-tighter italic">
+            Оплата производится через <span class="text-[#ff00ff]">СБП</span>
+          </p>
+          <div class="bg-white/5 p-6 rounded-2xl space-y-2 border border-white/10">
+            <p class="text-white/40 text-[9px] uppercase font-bold tracking-widest">Номер телефона / Озон Банк</p>
+            <p class="text-2xl font-heading text-white tracking-[0.1em]">8 986 926 19 23</p>
+          </div>
+          <p class="text-[10px] text-white/30 uppercase tracking-widest">После перевода уведомьте Синдикат</p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center py-12">
+        <p class="text-[10px] text-white/10 uppercase tracking-[0.5em] font-black">RESISTANCE IS DIGITAL</p>
+      </div>
+
+    </div>
+  </main>
+</Layout>
+
+<style>
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .glow-text {
+    text-shadow: 0 0 20px rgba(0, 255, 159, 0.3);
+  }
+  .glass {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    backdrop-filter: blur(20px);
+  }
+</style>

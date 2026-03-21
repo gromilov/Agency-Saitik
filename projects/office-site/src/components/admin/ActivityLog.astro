@@ -1,6 +1,7 @@
 ---
 interface Props {
   sessions: Array<{
+    id: string;
     date: string;
     description: string;
     minutes: number;
@@ -32,12 +33,13 @@ const { sessions } = Astro.props;
           <th class="p-6">МЕТКА_ВРЕМЕНИ</th>
           <th class="p-6">МАНИФЕСТ_ЗАДАЧИ</th>
           <th class="p-6 text-right">КВАНТ_МИН</th>
+          <th class="p-6 text-right w-10">ДЕЙСТВИЕ</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-white/5">
         {sessions.length === 0 ? (
           <tr>
-            <td colspan="3" class="p-24 text-center">
+            <td colspan="4" class="p-24 text-center">
               <div class="flex flex-col items-center gap-6 opacity-20 group-hover:opacity-40 transition-opacity">
                 <div class="text-7xl font-mono">∅</div>
                 <p class="text-[10px] uppercase tracking-[0.5em] font-black">Буфер нейросети пуст. Ожидание активности...</p>
@@ -46,7 +48,7 @@ const { sessions } = Astro.props;
           </tr>
         ) : (
           sessions.map(s => (
-            <tr class="hover:bg-[#ff00ff]/5 transition-all duration-300 group/row">
+            <tr class="hover:bg-[#ff00ff]/5 transition-all duration-300 group/row" id={`session-${s.id}`}>
               <td class="p-6 opacity-40 group-hover/row:opacity-100 transition-opacity font-bold text-[10px] tracking-widest">{s.date}</td>
               <td class="p-6 text-white/70 group-hover/row:text-white transition-colors relative">
                 <div class="flex items-center gap-2">
@@ -59,10 +61,42 @@ const { sessions } = Astro.props;
                   {s.minutes}М
                 </span>
               </td>
+              <td class="p-6 text-right">
+                <button 
+                  onclick={`deleteSession('${s.id}')`}
+                  class="p-2 text-white/20 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all transform hover:scale-125 focus:outline-none"
+                  title="Удалить запись"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                </button>
+              </td>
             </tr>
           ))
         )}
       </tbody>
+    </table>
+  </div>
+</section>
+
+<script is:inline>
+  window.deleteSession = async (id) => {
+    if (!confirm('Вы действительно хотите удалить эту запись энергии? Это действие необратимо.')) return;
+    
+    try {
+      const res = await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        document.getElementById(`session-${id}`).style.opacity = '0';
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        alert('Ошибка удаления: ' + res.statusText);
+      }
+    } catch (err) {
+      alert('Сбой связи: ' + err.message);
+    }
+  }
+</script>
     </table>
   </div>
 </section>

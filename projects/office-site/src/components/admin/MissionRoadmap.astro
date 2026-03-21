@@ -1,0 +1,63 @@
+---
+const milestones = [
+  { id: 'SYNC', name: 'Синхронизация Агентов', status: 'completed', icon: '🔄' },
+  { id: 'HUB', name: 'Коммерческий Фасад', status: 'completed', icon: '🏛️' },
+  { id: 'ANCHOR_1', name: 'Первый Якорь (Mini PC)', status: 'active', icon: '🖥️' },
+  { id: 'PULSE', name: 'Ядро Пульса (SYN-PULSE)', status: 'pending', icon: '🛰️' },
+  { id: 'ANCHOR_FINAL', name: 'Финальный Якорь (Mac Mini M4)', status: 'pending', icon: '⚓' },
+];
+---
+
+<section class="space-y-6">
+  <h2 class="text-xs font-black tracking-[0.5em] text-white/40 mb-8 border-b border-white/5 pb-4 uppercase italic">ДОРОЖНАЯ_КАРТА_РЕЗОНАНСА</h2>
+  
+  <div class="space-y-4">
+    {milestones.map((m, index) => (
+      <div class={`relative flex items-center gap-6 p-4 rounded-2xl border transition-all duration-500 ${
+        m.status === 'completed' ? 'bg-[#00ff9f]/5 border-[#00ff9f]/20 opacity-60' : 
+        m.status === 'active' ? 'bg-white/[0.03] border-[#00ff9f] shadow-[0_0_30px_rgba(0,255,159,0.1)] translate-x-2' : 
+        'bg-white/[0.01] border-white/5 opacity-30'
+      }`}>
+        
+        <!-- Index & Line -->
+        <div class="relative flex flex-col items-center">
+          <div class={`w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black border ${
+            m.status === 'completed' ? 'bg-[#00ff9f] text-black border-[#00ff9f]' :
+            m.status === 'active' ? 'bg-black text-[#00ff9f] border-[#00ff9f] animate-pulse' :
+            'bg-black text-white/20 border-white/10'
+          }`}>
+            {index + 1}
+          </div>
+          {index < milestones.length - 1 && (
+            <div class="absolute top-6 w-[1px] h-8 bg-white/10"></div>
+          )}
+        </div>
+
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xl">{m.icon}</span>
+            <h3 class={`text-[11px] font-bold uppercase tracking-wider ${
+              m.status === 'active' ? 'text-white' : 'text-white/60'
+            }`}>{m.name}</h3>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class={`text-[8px] px-2 py-0.5 rounded-full font-black tracking-tighter uppercase ${
+               m.status === 'completed' ? 'bg-[#00ff9f]/20 text-[#00ff9f]' :
+               m.status === 'active' ? 'bg-[#00ff9f] text-black' :
+               'bg-white/5 text-white/20'
+            }`}>
+              {m.status === 'completed' ? 'ВЫПОЛНЕНО' : m.status === 'active' ? 'В_ПРОЦЕССЕ' : 'В_ОЖИДАНИИ'}
+            </div>
+          </div>
+        </div>
+
+        {m.status === 'active' && (
+          <div class="flex items-center gap-2">
+            <div class="w-1.5 h-1.5 bg-[#00ff9f] rounded-full animate-ping"></div>
+            <span class="text-[8px] font-mono text-[#00ff9f] animate-pulse">RESONANCE_DETECTED</span>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</section>

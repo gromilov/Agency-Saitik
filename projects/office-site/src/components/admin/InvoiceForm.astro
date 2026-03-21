@@ -1,0 +1,164 @@
+---
+import { db } from "../../db";
+import { projects } from "../../db/schema";
+
+const allProjects = await db.select().from(projects);
+---
+
+<form id="invoice-form" class="space-y-6">
+  <div>
+    <label class="block text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">ВЫБОР_ПРОЕКТА</label>
+    <select id="project-select" name="projectId" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00ff9f] transition-colors">
+      <option value="" disabled selected>Выберите узел...</option>
+      {allProjects.map(p => (
+        <option value={p.id} data-rate={p.hourlyRate}>{p.name}</option>
+      ))}
+    </select>
+  </div>
+
+  <div id="sessions-container" class="space-y-3 hidden">
+    <label class="block text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">ВЫБОР_ПУНКТОВ_ОПЛАТЫ</label>
+    <div id="sessions-list" class="max-h-48 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+        <!-- Sessions will be injected here -->
+    </div>
+  </div>
+
+  <div>
+    <label class="block text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">СУММА (RUB)</label>
+    <input 
+      id="invoice-amount"
+      type="number" 
+      name="amount" 
+      placeholder="15000" 
+      required 
+      class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00ff9f] transition-colors"
+    />
+  </div>
+
+  <div>
+    <label class="block text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">СРОК_ОПЛАТЫ (DUE_DATE)</label>
+    <input 
+      id="due-date-input"
+      type="date" 
+      name="dueDate" 
+      required 
+      class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00ff9f] transition-colors"
+    />
+  </div>
+
+  <button type="submit" class="w-full py-4 bg-[#00ff9f] text-black font-black uppercase tracking-[0.2em] rounded-xl hover:bg-[#00f3ff] hover:shadow-[0_0_20px_rgba(0,255,159,0.3)] transition-all transform active:scale-95">
+    ГЕНЕРИРОВАТЬ_СЧЕТ
+  </button>
+</form>
+
+<script is:inline>
+  const projectSelect = document.getElementById('project-select');
+  const sessionsContainer = document.getElementById('sessions-container');
+  const sessionsList = document.getElementById('sessions-list');
+  const amountInput = document.getElementById('invoice-amount');
+  const dueDateInput = document.getElementById('due-date-input');
+  
+  // Set default due date (today + 2 days)
+  const future = new Date();
+  future.setDate(future.getDate() + 2);
+  dueDateInput.value = future.toISOString().split('T')[0];
+
+  let currentRate = 0;
+
+  projectSelect.addEventListener('change', async (e) => {
+    const projectId = e.target.value;
+    const option = e.target.selectedOptions[0];
+    currentRate = parseInt(option.dataset.rate || 0);
+
+    sessionsContainer.classList.remove('hidden');
+    sessionsList.innerHTML = '<p class="text-[10px] text-white/20 uppercase animate-pulse">Загрузка...</p>';
+
+    try {
+      const res = await fetch(`/api/projects/${projectId}/sessions`);
+      const sessions = await res.json();
+      
+      if (sessions.length === 0) {
+        sessionsList.innerHTML = '<p class="text-[10px] text-white/40 uppercase">Нет неоплаченных записей</p>';
+        return;
+      }
+
+      sessionsList.innerHTML = sessions.map(s => `
+        <label class="flex items-start gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:border-[#00ff9f]/30 transition-all group">
+          <input type="checkbox" name="sessionIds" value="${s.id}" data-minutes="${s.minutes}" class="mt-1 accent-[#00ff9f] session-checkbox"/>
+          <div class="flex-1">
+            <div class="flex justify-between items-start">
+                <p class="text-xs text-white/80 leading-tight">${s.description}</p>
+                <span class="text-[10px] text-[#00ff9f] font-mono">${s.minutes}М</span>
+            </div>
+            <p class="text-[8px] text-white/20 uppercase mt-1">${s.date}</p>
+          </div>
+        </label>
+      `).join('');
+
+      // Add listeners to checkboxes
+      sessionsList.querySelectorAll('.session-checkbox').forEach(cb => {
+        cb.addEventListener('change', calculateTotal);
+      });
+
+    } catch (err) {
+      sessionsList.innerHTML = '<p class="text-[10px] text-red-500/50 uppercase italic">Ошибка загрузки</p>';
+    }
+  });
+
+  function calculateTotal() {
+    const checked = sessionsList.querySelectorAll('.session-checkbox:checked');
+    if (checked.length === 0) {
+        amountInput.value = '';
+        return;
+    }
+    
+    let totalMinutes = 0;
+    checked.forEach(cb => {
+        totalMinutes += parseInt(cb.dataset.minutes);
+    });
+
+    const hours = totalMinutes / 60;
+    const totalAmount = Math.ceil(hours * currentRate);
+    amountInput.value = totalAmount;
+  }
+
+  document.getElementById('invoice-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    
+    // Manual handling for multiple checkboxes
+    data.sessionIds = Array.from(formData.getAll('sessionIds'));
+
+    try {
+      const res = await fetch('/api/invoices/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        const err = await res.json();
+        alert('Ошибка: ' + (err.error || 'Неизвестный сбой'));
+      }
+    } catch (err) {
+      alert('Сбой связи: ' + err.message);
+    }
+  });
+</script>
+
+<style>
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.02);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 159, 0.1);
+    border-radius: 10px;
+  }
+</style>

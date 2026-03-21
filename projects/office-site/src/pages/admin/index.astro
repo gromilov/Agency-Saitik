@@ -12,10 +12,14 @@ import ActivityLog from "../../components/admin/ActivityLog.astro";
 import ProjectNode from "../../components/admin/ProjectNode.astro";
 import UnansweredComments from "../../components/admin/UnansweredComments.astro";
 import ResonanceTimer from "../../components/admin/ResonanceTimer.astro";
+import MissionStatus from "../../components/admin/MissionStatus.astro";
+import MissionRoadmap from "../../components/admin/MissionRoadmap.astro";
 import AdminSidebar from "../../components/admin/AdminSidebar.astro";
+import InvoiceList from "../../components/admin/InvoiceList.astro";
+import InvoiceForm from "../../components/admin/InvoiceForm.astro";
 import { db } from "../../db";
-import { clients, projects, workSessions } from "../../db/schema";
-import { desc } from "drizzle-orm";
+import { clients, projects, workSessions, invoices } from "../../db/schema";
+import { desc, eq } from "drizzle-orm";
 
 const session = Astro.cookies.get("syndicate_session");
 
@@ -36,6 +40,24 @@ const latestSessions = await db
   .from(workSessions)
   .orderBy(desc(workSessions.createdAt))
   .limit(10);
+
+const allInvoices = await db
+  .select()
+  .from(invoices)
+  .orderBy(desc(invoices.createdAt));
+
+// Расчет фонда материализации (Mini PC)
+const sessionsForCalc = await db
+  .select({
+    minutes: workSessions.minutes,
+    hourlyRate: projects.hourlyRate
+  })
+  .from(workSessions)
+  .innerJoin(projects, eq(workSessions.projectId, projects.id));
+
+const totalEarned = Math.round(
+  sessionsForCalc.reduce((acc, s) => acc + (s.minutes / 60) * (s.hourlyRate || 0), 0)
+);
 ---
 
 <Layout title="Syndicate Office | Командный Центр">
@@ -153,6 +175,22 @@ const latestSessions = await db
         </div>
       </header>
 
+      <div class="mt-12 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <MissionStatus 
+            label="Якорь: Mini PC" 
+            currentFund={totalEarned} 
+            targetFund={15000} 
+        />
+        <div class="p-6 bg-[#00ff9f]/5 border border-[#00ff9f]/20 rounded-3xl flex flex-col justify-center">
+            <span class="text-[10px] uppercase tracking-[0.4em] text-[#00ff9f] font-black italic block mb-2">ТЕКУЩИЙ_РЕЗОНАНС</span>
+            <div class="flex items-baseline gap-2">
+                <span class="text-4xl font-black text-white glow-text">1200</span>
+                <span class="text-xs text-[#00ff9f] font-mono">RUB/HR</span>
+            </div>
+            <p class="text-[9px] text-white/40 uppercase mt-2 tracking-widest">Проект: Novoprom</p>
+        </div>
+      </div>
+
       <!-- Resonance HUD -->
       <div
         class="mt-12 relative z-10 glass border border-white/5 rounded-[3rem] overflow-hidden bg-gradient-to-b from-white/[0.02] to-transparent"
@@ -176,9 +214,11 @@ const latestSessions = await db
         />
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-16 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mt-16 relative z-10">
         <!-- Left Column: Ops & Terminal -->
-        <div class="lg:col-span-4 space-y-12">
+        <div class="lg:col-span-12 xl:col-span-4 space-y-12">
+          <MissionRoadmap />
+
           <section class="space-y-6">
             <h2
               class="text-xs font-black tracking-[0.5em] text-white/40 mb-8 border-b border-white/5 pb-4 uppercase italic"
@@ -244,6 +284,20 @@ const latestSessions = await db
                 <div class="bg-glow bg-[#00f3ff]/5"></div>
               </button>
 
+              <button
+                onclick="window.showModal_invoice()"
+                class="cyber-action-card group border-[#00ff9f]/20 hover:border-[#00ff9f]"
+              >
+                <span class="icon text-3xl text-[#00ff9f]">🧾</span>
+                <div class="content">
+                  <span class="label text-[#00ff9f]">ВЫСТАВИТЬ_СЧЕТ</span>
+                  <span class="sub text-white/40 uppercase tracking-widest"
+                    >Финансовый запрос клиенту</span
+                  >
+                </div>
+                <div class="bg-glow bg-[#00ff9f]/5"></div>
+              </button>
+
               <a
                 href="/admin/stories"
                 class="cyber-action-card group border-red-600/20 hover:border-red-600"
@@ -273,7 +327,26 @@ const latestSessions = await db
         <!-- Center-Right Column: Data Flows -->
         <div class="lg:col-span-8 space-y-16">
           <!-- Energy Flow (Work Sessions) -->
-          <ActivityLog sessions={latestSessions} />
+          <ActivityLog 
+            sessions={latestSessions.map(s => ({
+              id: s.id,
+              date: s.date,
+              description: s.description,
+              minutes: s.minutes
+            }))} 
+          />
+
+          <!-- Financial Flow (Invoices) -->
+          <InvoiceList 
+            invoices={allInvoices.map(inv => ({
+              id: inv.id,
+              projectId: inv.projectId || '---',
+              amount: inv.amount,
+              status: inv.status || 'sent',
+              dueDate: inv.dueDate,
+              createdAt: inv.createdAt || new Date()
+            }))} 
+          />
 
           <!-- Project Nodes -->
           <section class="space-y-8">
@@ -322,6 +395,10 @@ const latestSessions = await db
 
   <Modal id="session" title="ФИКСАЦИЯ_ВРЕМЕНИ" variant="blue">
     <WorkSessionForm projects={allProjects} />
+  </Modal>
+
+  <Modal id="invoice" title="ВЫСТАВИТЬ_СЧЕТ" variant="green">
+    <InvoiceForm />
   </Modal>
 </Layout>
 

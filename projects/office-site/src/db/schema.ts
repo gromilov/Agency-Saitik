@@ -27,6 +27,8 @@ export const projects = sqliteTable('projects', {
 export const workSessions = sqliteTable('work_sessions', {
   id: text('id').primaryKey().$defaultFn(() => nanoid()),
   projectId: text('project_id').references(() => projects.id, { onDelete: 'cascade' }),
+  invoiceId: text('invoice_id').references(() => invoices.id, { onDelete: 'set null' }),
+  status: text('status', { enum: ['pending', 'invoiced', 'paid'] }).default('pending'),
   description: text('description').notNull(),
   minutes: integer('minutes').notNull(),
   date: text('date').notNull(), // ГГГГ-ММ-ДД
@@ -91,6 +93,7 @@ export const projectRelations = relations(projects, ({ one, many }) => ({
     references: [clients.id],
   }),
   workSessions: many(workSessions),
+  invoices: many(invoices),
   systemStates: many(systemState), // Техническая связь
 }));
 
@@ -99,4 +102,16 @@ export const workSessionRelations = relations(workSessions, ({ one }) => ({
     fields: [workSessions.projectId],
     references: [projects.id],
   }),
+  invoice: one(invoices, {
+    fields: [workSessions.invoiceId],
+    references: [invoices.id],
+  }),
+}));
+
+export const invoiceRelations = relations(invoices, ({ one, many }) => ({
+  project: one(projects, {
+    fields: [invoices.projectId],
+    references: [projects.id],
+  }),
+  workSessions: many(workSessions),
 }));
