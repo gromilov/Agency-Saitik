@@ -1,0 +1,11 @@
+{
+  "name": "@syndicate/pulse",
+  "version": "1.0.0",
+  "description": "Единый модуль связи Синдиката",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {}
+}

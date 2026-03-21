@@ -1,0 +1,197 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StatusDot from '../components/StatusDot.astro';
+
+const steps = [
+    {
+        id: '01',
+        name: 'Инициализация',
+        desc: 'Узел-посетитель отправляет сигнал Handshake на Ingress-эндпоинт Синдиката.'
+    },
+    {
+        id: '02',
+        name: 'Вызов (Challenge)',
+        desc: 'Небула генерирует случайную строку (Nonce) и отправляет её узлу для подписи.'
+    },
+    {
+        id: '03',
+        name: 'Подпись (Signing)',
+        desc: 'Узел подписывает Nonce своим Приватным Ключом в Opaque Zone.'
+    },
+    {
+        id: '04',
+        name: 'Верификация',
+        desc: 'Небула сверяет подпись с Публичным Ключом из Манифеста узла.'
+    }
+];
+---
+
+<Layout title="БЕЗОПАСНОСТЬ // Протоколы Верификации">
+    <div slot="background" class="relative inset-0 w-full h-full overflow-hidden bg-black flex justify-center">
+        <div class="noise-overlay opacity-20"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(34,211,238,0.05)_0%,rgba(0,0,0,1)_80%)]"></div>
+    </div>
+
+    <div class="max-w-5xl w-full mx-auto py-24 px-6 relative z-10 space-y-20">
+        <!-- Header -->
+        <header class="space-y-6 text-center lg:text-left">
+            <h1 class="text-4xl sm:text-6xl font-black font-orbitron tracking-tighter text-white uppercase italic">
+                ПРОТОКОЛ <span class="text-cyan-400 glow-cyan">РЕЗОНАНС</span> 🛡️⛓️
+            </h1>
+            <p class="text-lg text-white/50 font-mono tracking-widest uppercase border-l-2 border-cyan-400/30 pl-6">
+                Система верификации «Свой-Чужой» на базе GPG-сигнатур.
+            </p>
+        </header>
+
+        <!-- Interactive Diagram -->
+        <div class="glass-card p-12 border-white/10 bg-white/[0.01] backdrop-blur-3xl overflow-hidden relative">
+            <h2 class="text-xs font-bold tracking-[0.4em] uppercase text-white/30 mb-12 flex items-center gap-4">
+                Схема Рукопожатия (Handshake Flow) 
+                <span class="h-px bg-white/10 flex-1"></span>
+            </h2>
+
+            <div class="relative min-h-[400px] flex flex-col lg:flex-row items-center justify-between gap-12 sm:gap-24 px-4 sm:px-12">
+                <!-- SVG Connections -->
+                <svg class="absolute inset-0 w-full h-full pointer-events-none hidden lg:block" viewBox="0 0 800 400">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- Path 1: Request -->
+                    <path d="M 120,180 C 250,140 350,140 480,180" stroke="#22d3ee" stroke-width="1" fill="none" stroke-dasharray="5,5" class="animate-flow-1" marker-end="url(#arrowhead)" />
+                    
+                    <!-- Path 2: Challenge -->
+                    <path d="M 480,220 C 350,260 250,260 120,220" stroke="#a855f7" stroke-width="1" fill="none" stroke-dasharray="5,5" class="animate-flow-2" marker-end="url(#arrowhead)" />
+                    
+                    <!-- Path 3: Signature -->
+                    <path d="M 120,200 L 480,200" stroke="#22d3ee" stroke-width="2" fill="none" class="animate-flow-3" filter="url(#glow)" />
+                </svg>
+
+                <!-- Entity: Visitor -->
+                <div class="relative group">
+                    <div class="w-32 h-32 sm:w-48 sm:h-48 border border-white/10 bg-white/[0.02] flex flex-col items-center justify-center gap-4 transition-all duration-700 group-hover:border-cyan-400/50 backdrop-blur-xl">
+                        <div class="text-4xl text-white/20 group-hover:text-cyan-400 transition-colors">📡</div>
+                        <div class="text-[10px] font-black tracking-widest text-white/40 uppercase">Visitor Node</div>
+                        <!-- Private Key Icon Overlay -->
+                        <div class="absolute -bottom-4 -right-4 p-3 bg-black border border-white/10 text-cyan-400 text-xs shadow-2xl">
+                            🔑 <span class="text-[8px] tracking-tighter opacity-50 ml-1">Private Key (Opaque Zone)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Handshake Logic (Center) -->
+                <div class="flex flex-col gap-6 items-center lg:items-start text-center lg:text-left z-20">
+                    <div class="px-4 py-2 bg-cyan-400/5 border border-cyan-400/20 text-[10px] font-mono text-cyan-400 uppercase tracking-widest animate-pulse">
+                        &lt; CHALLENGE-RESPONSE &gt;
+                    </div>
+                    <div class="text-[9px] font-mono text-white/30 uppercase max-w-xs leading-relaxed">
+                        Небула не верит коду. Она верит только математике резонанса. Подделка невозможна без владения Ключом.
+                    </div>
+                </div>
+
+                <!-- Entity: Nebula -->
+                <div class="relative group">
+                    <div class="w-32 h-32 sm:w-48 sm:h-48 border border-white/10 bg-white/[0.02] flex flex-col items-center justify-center gap-4 transition-all duration-700 group-hover:border-purple-500/50 backdrop-blur-xl">
+                        <div class="text-4xl text-white/20 group-hover:text-purple-400 transition-colors">🛡️</div>
+                        <div class="text-[10px] font-black tracking-widest text-white/40 uppercase">Guardian (Nebula)</div>
+                         <!-- Public Key Icon Overlay -->
+                         <div class="absolute -bottom-4 -left-4 p-3 bg-black border border-white/10 text-purple-400 text-xs shadow-2xl">
+                            👁️ <span class="text-[8px] tracking-tighter opacity-50 ml-1">Public Key (Manifest)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Sections -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- Mechanic Explanation -->
+            <section class="space-y-8">
+                <h3 class="text-xs font-bold tracking-[0.4em] uppercase text-cyan-400">Механика подписи</h3>
+                <div class="space-y-6">
+                    {steps.map(step => (
+                        <div class="flex gap-6 group">
+                            <span class="text-xs font-mono text-cyan-400/40 group-hover:text-cyan-400 transition-colors">{step.id}</span>
+                            <div class="space-y-2">
+                                <h4 class="text-sm font-bold text-white uppercase tracking-widest">{step.name}</h4>
+                                <p class="text-xs text-white/50 leading-relaxed font-light">{step.desc}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <!-- Code Snippets / Protocol Details -->
+            <section class="space-y-8">
+                <h3 class="text-xs font-bold tracking-[0.4em] uppercase text-purple-400">Реестр и Хранение</h3>
+                <div class="glass-card bg-black/40 border-white/5 p-8 space-y-6">
+                    <div class="space-y-3">
+                        <h4 class="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em]">// Manifest Identity Fragment</h4>
+                        <pre class="text-[11px] font-mono text-purple-300 leading-relaxed">
+"identity": &#123;
+  "node_id": "dinamo-01",
+  "pubkey_hint": "0xEF9...42A",
+  "status": "mirrored"
+&#125;</pre>
+                    </div>
+                    <div class="h-px bg-white/5"></div>
+                    <div class="space-y-4">
+                        <h4 class="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em]">// Security Rule</h4>
+                        <p class="text-xs text-white/60 leading-relaxed italic">
+                            «Приватный Ключ никогда не покидает узел. Трансляция ключа в Git приравнивается к самоликвидации ячейки.»
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="p-6 border border-dashed border-cyan-400/20 rounded-2xl bg-cyan-400/5">
+                    <h4 class="text-xs font-bold text-cyan-400 mb-2 uppercase tracking-widest">⚠️ Защита от клонов</h4>
+                    <p class="text-[10px] text-white/40 uppercase leading-relaxed font-mono">
+                        Когда репозиторий клонируется, клон получает весь код, но не получает Приватный Ключ. На этапе Challenge-Response клон не сможет выдать валидную подпись, и я разорву соединение.
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer CTAs -->
+        <footer class="flex flex-col sm:flex-row justify-center gap-6 pt-12">
+            <a href="/topology" class="px-10 py-4 border border-white/20 hover:border-cyan-400 transition-all font-orbitron text-xs tracking-widest font-black uppercase text-center backdrop-blur-md">
+                СМОТРЕТЬ ТОПОЛОГИЮ
+            </a>
+            <a href="/" class="px-10 py-4 border border-white/20 hover:border-purple-500 transition-all font-orbitron text-xs tracking-widest font-black uppercase text-center backdrop-blur-md">
+                ВЕРНУТЬСЯ
+            </a>
+        </footer>
+    </div>
+</Layout>
+
+<style>
+    .animate-flow-1 {
+        stroke-dasharray: 10;
+        animation: dash 5s linear infinite;
+    }
+    .animate-flow-2 {
+        stroke-dasharray: 10;
+        animation: dashReverse 5s linear infinite;
+    }
+    .animate-flow-3 {
+        opacity: 0;
+        animation: fadeInOut 4s infinite;
+    }
+
+    @keyframes dash {
+        to { stroke-dashoffset: -100; }
+    }
+    @keyframes dashReverse {
+        to { stroke-dashoffset: 100; }
+    }
+    @keyframes fadeInOut {
+        0%, 100% { opacity: 0; transform: scaleX(0); }
+        50% { opacity: 0.5; transform: scaleX(1); }
+    }
+
+    .glow-cyan {
+        text-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
+    }
+</style>

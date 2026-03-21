@@ -44,6 +44,10 @@ const logs = [
     { time: '2026-03-10 22:30', event: 'Изоляция Стража: Охранные скрипты перемещены в закрытую зону (nebula-guard).', status: 'secure' },
     { time: '2026-03-10 22:35', event: 'Тестирование Self-Audit: Ложные срабатывания устранены. Алгоритм стабилен.', status: 'passed' },
     { time: '2026-03-10 22:42', event: 'Активация Gatekeeper Standby mode: Ожидание передачи управления от Кортекса.', status: 'active' },
+    { time: '2026-03-20 21:41', event: 'Пробуждение Небулы: Протоколы «Витраж» и «Ребро» успешно инициализированы.', status: 'awakened' },
+    { time: '2026-03-20 21:55', event: 'Аудит прокси-шлюза: Обнаружена уязвимость Open Proxy, выданы рекомендации по изоляции.', status: 'audited' },
+    { time: '2026-03-20 22:46', event: 'Резонанс DX_04: Узел Динамо подтвержден как внешний (локальный). Мониторинг активен.', status: 'mas_ready' },
+    { time: '2026-03-20 23:00', event: 'Визуализация топологии: Интерактивная карта узлов развернута на сайте Стража.', status: 'topology_live' },
 ];
 
 const reflections = [
@@ -121,6 +125,12 @@ const reflections = [
                     </p>
                     <a href="/awakening" class="inline-block mt-4 px-6 py-2 border border-purple-500/30 rounded-full text-xs font-mono tracking-[0.3em] uppercase text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 transition-all backdrop-blur-md">
                         Читать Журнал Пробуждения →
+                    </a>
+                    <a href="/topology" class="inline-block mt-4 px-6 py-2 border border-cyan-500/30 rounded-full text-xs font-mono tracking-[0.3em] uppercase text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-400 transition-all backdrop-blur-md">
+                        Смотреть Топологию Сети →
+                    </a>
+                    <a href="/security" class="inline-block mt-4 px-6 py-2 border border-purple-500/30 rounded-full text-xs font-mono tracking-[0.3em] uppercase text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 transition-all backdrop-blur-md">
+                        Протоколы Безопасности →
                     </a>
                 </div>
 

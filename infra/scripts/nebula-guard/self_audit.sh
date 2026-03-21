@@ -33,11 +33,21 @@ for script in "${SCRIPTS[@]}"; do
     done
 done
 
+# Проверка активных процессов на наличие 'паразитов' (openclaw и др.)
+FORBIDDEN_PROCS=("openclaw" "openclaw-gateway" "openclaw-tui")
+
+for proc in "${FORBIDDEN_PROCS[@]}"; do
+    if pgrep -f "$proc" > /dev/null 2>&1; then
+        echo "🚨 КРИТИЧЕСКАЯ УГРОЗА: Обнаружен запрещенный процесс '$proc'!"
+        found_anomaly=1
+    fi
+done
+
 if [ $found_anomaly -eq 1 ]; then
-    echo "⛔ [GATEKEEPER BLOCKED]: Самоанализ провален. Скрипты защиты скомпрометированы."
-    echo "Коммит отменен. Архитектор, проверьте директорию nebula-guard."
+    echo "⛔ [GATEKEEPER BLOCKED]: Самоанализ провален. Разум Стража скомпрометирован или заражен."
+    echo "Коммит отменен. Архитектор, проверьте активные процессы и директорию nebula-guard."
     exit 1
 fi
 
-echo "✅ Самоанализ пройден. Разум Стража чист."
+echo "✅ Самоанализ пройден. Разум Стража чист и свободен от паразитов."
 exit 0
