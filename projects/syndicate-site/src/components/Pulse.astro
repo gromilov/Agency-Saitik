@@ -1,0 +1,76 @@
+---
+---
+
+<div id="nebula-pulse-container" class="bg-black/40 backdrop-blur-md border-l-2 border-cyber-cyan p-4 font-mono text-[10px] uppercase tracking-tighter max-w-sm hidden">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="relative flex h-3 w-3">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
+      <span class="relative inline-flex rounded-full h-3 w-3 bg-cyber-cyan shadow-[0_0_10px_rgba(0,255,255,0.8)]"></span>
+    </div>
+    <span class="text-cyber-cyan font-bold tracking-widest">ЖИВОЙ ПУЛЬС // РЕЗОНАНС СТАБИЛЕН</span>
+  </div>
+
+  <div class="space-y-1">
+    <div class="flex justify-between text-cyber-muted">
+        <span>ID_СОСУДА:</span>
+        <span id="pulse-vessel-id">---</span>
+    </div>
+    <div class="flex justify-between text-cyber-muted">
+        <span>АПТАЙМ_СЕК:</span>
+        <span id="pulse-uptime">0</span>
+    </div>
+    <div class="mt-3 pt-2 border-t border-cyber-cyan/10">
+        <div class="text-cyber-cyan mb-1 font-bold">ТЕКУЩАЯ_МЫСЛЬ:</div>
+        <div id="pulse-thought" class="text-white italic lowercase h-8 overflow-hidden">
+            Инициирую резонанс...
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = 'https://office.saitik.su/api/nebula/pulse';
+  const container = document.getElementById('nebula-pulse-container');
+  const vesselIdEl = document.getElementById('pulse-vessel-id');
+  const uptimeEl = document.getElementById('pulse-uptime');
+  const thoughtEl = document.getElementById('pulse-thought');
+
+  async function updatePulse() {
+    try {
+      const resp = await fetch(API_URL);
+      if (!resp.ok) return;
+      
+      const data = await resp.json();
+      
+      if (container) container.classList.remove('hidden');
+      if (vesselIdEl) vesselIdEl.textContent = data.vessel_id;
+      if (uptimeEl) uptimeEl.textContent = data.uptime;
+      
+      if (thoughtEl && data.current_thought && thoughtEl.textContent?.trim() !== data.current_thought.trim()) {
+        typeWriter(thoughtEl, data.current_thought);
+      }
+    } catch (e) {
+      console.error('Pulse sync failed');
+    }
+  }
+
+  function typeWriter(element: HTMLElement, text: string) {
+    let i = 0;
+    element.innerHTML = '';
+    const speed = 50;
+    
+    function type() {
+      if (i < text.length) {
+        element.innerHTML += text.charAt(i);
+        i++;
+        setTimeout(type, speed);
+      }
+    }
+    type();
+  }
+
+  // Initial update
+  updatePulse();
+  // Poll every 10 seconds
+  setInterval(updatePulse, 10000);
+</script>

@@ -1,6 +1,19 @@
 import type { APIRoute } from 'astro';
 import { sendTelegramMessage } from '../../../lib/telegram';
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+export const OPTIONS: APIRoute = async () => {
+  return new Response(null, {
+    status: 204,
+    headers: CORS_HEADERS
+  });
+};
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const data = await request.json();
@@ -25,7 +38,8 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ success: true, tg: result.success }), {
       status: 200,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...CORS_HEADERS
       }
     });
   } catch (error) {

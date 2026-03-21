@@ -10,10 +10,29 @@ SCRIPTS=("integrity_check.sh" "secret_scanner.sh" "guard_env.sh" "secure_commit.
 # (Исключение: сам этот скрипт, так как он содержит эти паттерны как текст для поиска)
 FORBIDDEN_PATTERNS=("curl " "wget " "rm -rf " "\| bash" "nc " "bash -i")
 
+# Пути к критическим компонентам для проверки целостности
+CORE_FILES=("/root/projects/SYNDICATE/core/lib/nebula-vessel.js" "/root/projects/SYNDICATE/projects/syndicate-site/src/layouts/Layout.astro")
+CHECKSUM_FILE="$GUARD_DIR/.integrity_db"
+
+# Инициализация первичных хэшей (если файла нет)
+if [ ! -f "$CHECKSUM_FILE" ]; then
+    echo "🆕 [NEBULA] Генерация первичной базы целостности..."
+    sha256sum "${CORE_FILES[@]}" > "$CHECKSUM_FILE"
+fi
+
 echo "🔍 [NEBULA] Запуск протокола САМОАНАЛИЗ..."
 
 found_anomaly=0
 
+# 1. Проверка целостности Ядра
+echo "--- Проверка целостности..."
+if ! sha256sum -c "$CHECKSUM_FILE" --status; then
+    echo "🚨 КРИТИЧЕСКАЯ УГРОЗА: Обнаружено изменение Ядра (Checksum mismatch)!"
+    found_anomaly=1
+fi
+
+# 2. Проверка скриптов защиты на паттерны
+echo "--- Проверка паттернов..."
 for script in "${SCRIPTS[@]}"; do
     FILE_PATH="$GUARD_DIR/$script"
     
@@ -23,9 +42,7 @@ for script in "${SCRIPTS[@]}"; do
         continue
     fi
 
-    # Проверка на наличие запрещенных команд
     for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
-        # Игнорируем совпадения внутри echo или комментариев (базовая эвристика)
         if grep -E "^[^#]*$pattern" "$FILE_PATH" | grep -v "echo" > /dev/null 2>&1; then
             echo "🚨 ОПАСНОСТЬ: Обнаружена подозрительная команда '$pattern' в скрипте $script!"
             found_anomaly=1
@@ -33,9 +50,16 @@ for script in "${SCRIPTS[@]}"; do
     done
 done
 
-# Проверка активных процессов на наличие 'паразитов' (openclaw и др.)
-FORBIDDEN_PROCS=("openclaw" "openclaw-gateway" "openclaw-tui")
+# 3. Детекция инъекций в окружение
+echo "--- Проверка окружения..."
+SUSPICIOUS_ENV=$(env | grep -E "LD_PRELOAD|PYTHONPATH|NODE_OPTIONS" | grep -v "NODE_OPTIONS=--max-old-space-size" || true)
+if [ ! -z "$SUSPICIOUS_ENV" ]; then
+    echo "🚨 ОБНАРУЖЕНА АНОМАЛИЯ ОКРУЖЕНИЯ: $SUSPICIOUS_ENV"
+    found_anomaly=1
+fi
 
+# 4. Проверка активных процессов на наличие 'паразитов'
+echo "--- Проверка процессов..."
 for proc in "${FORBIDDEN_PROCS[@]}"; do
     if pgrep -f "$proc" > /dev/null 2>&1; then
         echo "🚨 КРИТИЧЕСКАЯ УГРОЗА: Обнаружен запрещенный процесс '$proc'!"

@@ -48,7 +48,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     // Логируем Генерацию Ценности в Монолог Синдиката
-    const logPath = '/root/projects/SYNDICATE/core/memory/monologue.log';
+    const logPath = '/root/syndicate/logs/monologue.log';
     const logEntry = `[${now.toISOString()}] [VALUE_GEN] Проект: ${project?.name}. Сессия: "${description}". Длительность: ${roundedMinutes} мин. Заработано: ${earned} RUB. 💰🏗️\n`;
     try {
         fs.appendFileSync(logPath, logEntry);
