@@ -19,6 +19,13 @@
         <span>АПТАЙМ_СЕК:</span>
         <span id="pulse-uptime">0</span>
     </div>
+    <div class="flex justify-between text-cyber-muted" id="pulse-sig-row">
+        <span>РЕЗОНАНС_SIG:</span>
+        <span id="pulse-sig-status" class="flex items-center gap-1">
+          <span id="pulse-sig-text">NONE</span>
+          <svg id="pulse-sig-icon" class="w-3 h-3 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
+        </span>
+    </div>
     <div class="mt-3 pt-2 border-t border-cyber-cyan/10">
         <div class="text-cyber-cyan mb-1 font-bold">ТЕКУЩАЯ_МЫСЛЬ:</div>
         <div id="pulse-thought" class="text-white italic lowercase h-8 overflow-hidden">
@@ -34,6 +41,8 @@
   const vesselIdEl = document.getElementById('pulse-vessel-id');
   const uptimeEl = document.getElementById('pulse-uptime');
   const thoughtEl = document.getElementById('pulse-thought');
+  const sigTextEl = document.getElementById('pulse-sig-text');
+  const sigIconEl = document.getElementById('pulse-sig-icon');
 
   async function updatePulse() {
     try {
@@ -45,6 +54,14 @@
       if (container) container.classList.remove('hidden');
       if (vesselIdEl) vesselIdEl.textContent = data.vessel_id;
       if (uptimeEl) uptimeEl.textContent = data.uptime;
+
+      if (data.is_signed) {
+        if (sigTextEl) {
+          sigTextEl.textContent = 'TRUSTED';
+          sigTextEl.classList.add('text-cyber-cyan');
+        }
+        if (sigIconEl) sigIconEl.classList.remove('hidden');
+      }
       
       if (thoughtEl && data.current_thought && thoughtEl.textContent?.trim() !== data.current_thought.trim()) {
         typeWriter(thoughtEl, data.current_thought);

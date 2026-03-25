@@ -59,10 +59,3 @@
 
 
 
-
-
-
-
----
-*Log sequence updated... 🐾⚓*
----
